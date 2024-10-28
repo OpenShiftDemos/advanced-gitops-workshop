@@ -2,9 +2,11 @@
 
 #### Introduction
 
-This workshop provides an OpenShift GitOps 101 experience on OpenShift using the OpenShift
-GitOps operator. It walks workshop attendees through the process of using OpenShift GitOps
-with kustomize and helm.
+This workshop is an Advanced GitOps experience using the OpenShift
+GitOps operator. Attendees will learn about more advanced topics such
+as Argo CD RBAC, GitOps configuration, ApplicationSets and more. It's meant
+to be a 201 level workshop as a next step for attendees who completed the
+101 GitOps workshop.
 
 #### Installation
 
