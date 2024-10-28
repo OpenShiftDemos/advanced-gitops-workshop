@@ -2,11 +2,11 @@
 ** xref:01-getting-started.adoc#cluster-login[Cluster Login]
 ** xref:01-getting-started.adoc#open-web-terminal[Open the Web Terminal]
 
-* xref:02-argocd-rbac.adoc[2. GitOps Basics]
+* xref:02-argocd-rbac.adoc[2. Argo CD RBAC]
 
-* xref:03-configuration.adoc[3. Work with Kustomize]
+* xref:03-configuration.adoc[3. GitOps Configuration]
 
-* xref:04-applicationsets.adoc[4. Work with Helm]
+* xref:04-applicationsets.adoc[4. ApplicatonSets]
 
-* xref:05-conclusion.adoc[6. Conclusion]
+* xref:05-conclusion.adoc[5. Conclusion]
 ** xref:05-conclusion.adoc#Resources[Resources]
