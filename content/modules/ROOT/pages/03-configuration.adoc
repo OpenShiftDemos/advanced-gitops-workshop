@@ -1,0 +1,2 @@
+= GitOps Configuration
+include::_attributes.adoc[]

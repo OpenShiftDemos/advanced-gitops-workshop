@@ -1,0 +1,4 @@
+= Argo CD Architecture
+include::_attributes.adoc[]
+
+...
