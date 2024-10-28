@@ -1,6 +1,7 @@
 * xref:01-getting-started.adoc[1. Getting Started]
 ** xref:01-getting-started.adoc#cluster-login[Cluster Login]
-** xref:01-getting-started.adoc#open-web-terminal[Open the Web Terminal]
+** xref:01-getting-started.adoc#argocd-login[Argo CD Login]
+** xref:01-getting-started.adoc#gitops-architecture[OpenShift GitOps Architecture]
 
 * xref:02-argocd-rbac.adoc[2. Argo CD RBAC]
 

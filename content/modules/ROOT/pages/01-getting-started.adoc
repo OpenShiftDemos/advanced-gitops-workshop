@@ -84,3 +84,66 @@ In order to copy and paste content into the terminal, you can use
 the secondary (typically right click) menus to do so. You can also
 use the keyboard to paste content with the shortcut &lt;ctrl&gt;&lt;shift&gt;&lt;v&gt;.
 ====
+
+[#argocd-login]
+= OpenShift GitOps Login
+
+While Argo CD generates a default `admin` user and a random password when first
+deployed you can also configure Argo CD to use the OpenShift authentication.
+You can connect to Argo CD using this user account via the CLI or web
+console.  In this workshop, we will only use the Argo CD web console.
+
+Click on the following link to access the Argo CD user interface:
+
+link:https://argocd-server-{user}-argocd.{domain}[{https://argocd-server-{user}-argocd.{domain}},window='_blank']
+
+Click on the `Log In Via OpenShift` button and use the same username
+and password that you used to login in with OpenShift.
+
+image::argo-cd-login.png[ArgoCDLogin, 600]
+
+After you enter your credentials you will see the following prompting you to authorize access,
+click the "Allow selected permissions" button.
+
+image::argo-cd-allow-access.png[ArgoCDAuthorize, 600]
+
+Once you've logged in, you should see the following page. This is the Argo CD
+Web UI.
+
+image::argocd-login2.png[ArgoCDLogin2, 600]
+
+[#gitops-architecture]
+= OpenShift GitOps Architecture
+
+In this section we will do a brief overview of the OpenShift GitOps architecture which is depicted in the diagram below.
+
+image::gitops/argocd-architecture.png[]
+
+[NOTE]
+In the diagram above, everything contained within the dotted is running in OpenShift whereas outside the line are external
+dependencies or interactions.
+
+The OpenShift GitOps operator is used to deploy, manage and upgrade an installation of Argo CD which runs in a
+specified namespace. The Argo CD installation contains several components, running as individual deployments,
+which are as follows:
+
+1. *Application Controller*. This component is responsible for deploying Kubernetes resources and watching the resources for change,
+to do so it interacts with the Kubernetes API.
+2. *Repo Server*. This component manages access to the manifests via a git repository, it is responsible for
+fetching the manifests (i.e. yaml files). These manifests can be built from raw yaml, helm or kustomize but
+additional tools can be used via a plugin architecture. For improved performance, it caches these manifests
+in the redis component.
+3. *Server*. This provides the user interface as well as a REST API.
+4. *Dex (optional)*. Provides authentication via OpenShift OAuth2, in this workshop it is not used as we
+are authenticating directly against Keycloak.
+5. *ApplicationSet Controller (Not shown)*. This component is responsible for managing ApplicationSets which
+are used to generate Applications using generators. These generators can create Applications based on Pull Requests,
+directories in git, clusters, etc.
+
+Check that these have been deployed successfully in your Argo CD namespace:
+
+[.console-input]
+[source,bash,subs="attributes+,+macros"]
+----
+oc get all -n {user}-argocd
+----
