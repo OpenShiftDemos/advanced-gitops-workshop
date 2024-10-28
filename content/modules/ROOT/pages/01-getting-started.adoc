@@ -2,8 +2,6 @@
 include::_attributes.adoc[]
 
 [#cluster-login]
-== OpenShift cluster login
-
 == OpenShift Cluster Login
 
 The first thing to do is log in to your OpenShift cluster with the following
@@ -86,7 +84,7 @@ use the keyboard to paste content with the shortcut &lt;ctrl&gt;&lt;shift&gt;&lt
 ====
 
 [#argocd-login]
-= OpenShift GitOps Login
+== OpenShift GitOps Login
 
 While Argo CD generates a default `admin` user and a random password when first
 deployed you can also configure Argo CD to use the OpenShift authentication.
@@ -113,14 +111,14 @@ Web UI.
 image::argocd-login2.png[ArgoCDLogin2, 600]
 
 [#gitops-architecture]
-= OpenShift GitOps Architecture
+== OpenShift GitOps Architecture
 
 In this section we will do a brief overview of the OpenShift GitOps architecture which is depicted in the diagram below.
 
-image::gitops/argocd-architecture.png[]
+image::argocd-architecture.png[]
 
 [NOTE]
-In the diagram above, everything contained within the dotted is running in OpenShift whereas outside the line are external
+In the diagram above, everything contained within the dotted line is running in OpenShift whereas outside the line are external
 dependencies or interactions.
 
 The OpenShift GitOps operator is used to deploy, manage and upgrade an installation of Argo CD which runs in a
