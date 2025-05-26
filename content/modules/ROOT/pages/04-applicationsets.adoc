@@ -1,4 +1,234 @@
 = ApplicationSets
 include::_attributes.adoc[]
 
-...
+With Argo CD there are often situations where you want to deploy or generate multiple versions of the same Application with variations. These variations can be static,
+i.e. a basic list of differing elements, or dynamic based on external inputs such as git repositories.
+
+This is where the Argo CD link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset[ApplicationSet,window="_blank"] feature
+comes into play. ApplicationSets enables you to generate Application resources using templating. Each ApplicationSet can include one or
+more generators that power the creation of Applications. Argo CD currently includes many different generators and enables users to create custom generators via a Plugin architecture.
+
+There are a number of link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators[generators,window="_blank"] available, some common examples of these generators include:
+
+* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-List[List,window="_blank"] generator for generating applications for different environments. We will look at an example of this shortly
+* Leveraging the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/[git,window="_blank"] generator to create Applications based on the contents of a git repo, we will look at this in Module 4 as a more dynamic way to generate apps for environments.
+* Using the https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/[Pull Request,window="_blank"] generator to provision new environments on the fly to run automated tests before merging the code.
+* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Cluster/[Cluster,window="_blank"] generator to provision an Application across multiple clusters.
+* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Matrix[Matrix,window="_blank"]
+and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Merge[Merge,window="_blank"] to combine the results from multiple generators.
+
+== Static Generation with List Generator
+
+Let's look at a simple example of an Application that uses a List generator to create the development and production Applications
+for the `coolstore-app` Application we deployed earlier.
+
+Deploy the ApplicationSet using the following command:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/coolstore-gitops-appset.yaml | sed 's/$SUBDOMAIN/{subdomain}/' | oc apply -f - -n {user}-argocd
+----
+
+Next have a look at the ApplicationSet that was deployed with this command:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+oc get appset coolstore-apps -o yaml -n {user}-argocd | oc neat
+----
+
+[.console-output]
+[source,yaml,subs="attributes+,+macros"]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: coolstore-apps
+  namespace: {user}-argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io <1>
+spec:
+  generators:
+  - list: <2>
+      elements:
+      - environment: dev <3>
+      - environment: prod
+  goTemplate: true
+  goTemplateOptions:
+  - missingkey=error
+  template: <4>
+    metadata:
+      name: coolstore-app-{{.environment}} <5>
+      namespace: {user}-argocd
+    spec:
+      destination:
+        name: in-cluster
+        namespace: {user}-{{.environment}}
+      project: {user}
+      source:
+        path: content/modules/ROOT/files/gitops/module-02
+        repoURL: https://gitea-gitea.{subdomain}/{user}/workshop.git
+        targetRevision: HEAD
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+----
+<1> Argo CD will automatically delete the Applications when the ApplicationSet is deleted. Including a finalizer ensures that the
+resources the Application deployed will also be deleted. See more information link:https://argo-cd.readthedocs.io/en/stable/user-guide/app_deletion/#about-the-deletion-finalizer[here,window="_blank"].
+<2> We are using the `list` generator which enables us to provide a static list of elements to dynamically
+generate applications, basically it is 1:1 per element
+<3> Each element has one value, `environment`, which will be templated into the resulting Application object.
+<4> The `template` section is where we define the Application resource that the ApplicationSet will create
+<5> Here is an example of referencing the `environment` value to template the name.
+
+Note that while we created these Applications earlier, the ApplicationSet will now assume ownership of them, This
+can be validated with the following command:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+oc get app coolstore-app-dev -o=jsonpath='{.metadata.ownerReferences}' -n {user}-argocd | jq -s .
+----
+
+[.console-output]
+[source,yaml,subs="attributes+,+macros"]
+----
+[
+  [
+    {
+      "apiVersion": "argoproj.io/v1alpha1",
+      "blockOwnerDeletion": true,
+      "controller": true,
+      "kind": "ApplicationSet",
+      "name": "coolstore-apps",
+      "uid": "1cb40de5-09a0-440e-a12e-28941e9c81b1"
+    }
+  ]
+]
+----
+
+As we can see ApplicationSets provide an easy way to generate Application objects statically but now let's have a look
+at dynamic generation.
+
+== Dynamic Generation with git Generator
+
+A common pattern when deploying an application to multiple environments is to have a repository that contains the following structure:
+
+* *base*: the common assets that we want to deploy
+* *overlays*:
+    ** *dev*: specific values that will override the ones in the base for the "dev" environment
+    ** *prod*: specific values that will override the ones in the base for the "prod" environment
+
+Let's deploy these applications using an ApplicationSet as we did previously but this time we will use a git generator.
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/web-nodejs-appset.yaml | sed 's/$SUBDOMAIN/{subdomain}/' | oc apply -f - -n {user}-argocd
+----
+
+Let's have a quick look at our new ApplicationSet:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+oc get appset web-nodejs -o yaml -n {user}-argocd | oc neat
+----
+
+[.console-output]
+[source,yaml,subs="attributes+,+macros"]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: web-nodejs
+  namespace: {user}-argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io <1>
+spec:
+  generators:
+  - git: <1>
+      directories:
+      - path: globex/overlays/* <2>
+      repoURL: https://gitea-gitea.{subdomain}/{user}/gitops.git <3>
+      revision: HEAD
+      values:
+        user: {user} <4>
+  goTemplate: true
+  goTemplateOptions:
+  - missingkey=error
+  template:
+    metadata:
+      name: app-{{.path.basename}} <5>
+      namespace: '{{ .values.user }}-argocd'
+    spec:
+      destination:
+        name: in-cluster
+        namespace: '{{ .values.user }}-{{.path.basename}}'
+      project: '{{ .values.user }}'
+      source:
+        kustomize:
+          patches:
+          - patch: |-
+              - op: replace
+                path: /spec/template/spec/containers/0/env/0/value
+                value: 'gateway-vertx-{{ .values.user }}-{{.path.basename}}'
+            target:
+              kind: Deployment
+              name: web-nodejs
+        path: '{{.path.path}}' <6>
+        repoURL: https://gitea-gitea.{subdomain}/{user}/gitops.git
+        targetRevision: main
+      syncPolicy:
+        automated:
+          prune: true
+----
+<1> We are using the git generator to create an Application for every directory in the target repository and path
+<2> The target path, each sub-directory in this path will be used to create an application. In our case the `dev` and `prod` overlays
+<3> The target repository
+<4> Additional values to pass to the template
+<5> The basename of the path for which the Application is being generated, either `dev` or `prod` in this case
+<6> the full path in the repo for the current directory
+
+Check that the Applications have been created:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+oc get apps -n {user}-argocd
+----
+
+[.console-output]
+[source,yaml,subs="attributes+,+macros"]
+----
+app-dev              Synced        Healthy
+app-prod             Synced        Progressing
+coolstore-app-dev    Synced        Healthy
+coolstore-app-prod   Synced        Healthy
+dev-tools            Synced        Healthy
+pipeline-helm        Synced        Healthy
+----
+
+[NOTE]
+The `app-prod` application may be `Progressing` for awhile or show as `Degraded`, this is because we have not yet deployed the updated
+image generated by the Pipeline in production. We will perform this step in the next section.
+
+We can verify that the applications have been created in the Shared OpenShift GitOps by checking the Application tiles.
+
+* Go to OpenShift GitOps and select the "app-dev" application in the main page to access the details.
+
+* On the top-left side, click on *"App details"* to access the information about the application, such as the git repository, the branch where the files are located, the target cluster and namespace where the application is deployed, etc.
+
+If we pay closer attention, there are 3 items worth mentioning to understand the multi-environment management:
+
+* *REPO_URL:* the git repository where our the resources we want to deploy are defined
+
+* *TARGET REVISION:* the branch to use
+
+* *PATH:* the folder that contains the specific values for that environment. Here for example, for the "DEV" environment, we use the file located in "globex/overlays/dev".
+
+You can see more details by opening the "gitops" repository in gitea, and navigating to "globex" folder.
+
+== Combining Generators
