@@ -93,7 +93,7 @@ console.  In this workshop, we will only use the Argo CD web console.
 
 Click on the following link to access the Argo CD user interface:
 
-link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain[{https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain},window='_blank']
+link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[{https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain},window='_blank']
 
 Click on the `Log In Via OpenShift` button and use the same username
 and password that you used to login in with OpenShift.
