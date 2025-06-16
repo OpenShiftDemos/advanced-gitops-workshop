@@ -34,7 +34,7 @@ the following command to see how your Argo CD instance is currently configured w
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
- oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | jq .
+ oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq .
 ----
 
 [.console-output]
@@ -82,7 +82,7 @@ metadata:
   namespace: {user}-argocd
 spec:
   destination:
-    namespace: bgd
+    namespace: {user}-dev
     server: https://kubernetes.default.svc
   source:
     path: bgd/base
@@ -122,7 +122,7 @@ Check the results of this patch by executing the previous command to fetch the R
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | jq .
+oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq .
 ----
 
 [.console-output]
@@ -140,6 +140,35 @@ Notice a new group has been added to the policy section granting users in team{u
 We can also define our own policies here, as we can see with the new `role:none` that was added, if we need to define
 fine-grained permissions. We will look at the more later when talking about Argo CD Projects and RBAC but first we
 need to understand what an Argo CD Project is and why it is needed.
+
+Verify you can deploy the Application by repeating the previous steps, here is the Application file again:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bgd
+  namespace: {user}-argocd
+spec:
+  destination:
+    namespace: {user}-dev
+    server: https://kubernetes.default.svc
+  source:
+    path: bgd/base
+    repoURL: https://github.com/gitops-examples/getting-started
+    targetRevision: HEAD
+  project: default
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+----
+
+Wait for the Application to become Healthy and Synched as follows:
+
+
 
 === Argo CD Projects
 
