@@ -114,7 +114,7 @@ using the following command:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-oc apply -n {user}-argocd -f ~/workshop/content/modules/ROOT/examples/rbac/argocd.yaml | sed "s/%USER%/{user}/"
+oc apply -n {user}-argocd -f ~/workshop/content/modules/ROOT/examples/rbac/argocd.yaml | sed "s/%USER%/{user}/" | sed "s/%USERNUM%/{usernum}/"
 ----
 
 Check the results of this patch by executing the previous command to fetch the RBAC:
