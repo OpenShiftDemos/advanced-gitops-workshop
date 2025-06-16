@@ -146,3 +146,15 @@ Check that these have been deployed successfully in your Argo CD namespace:
 ----
 oc get all -n {user}-argocd
 ----
+
+[#clone-repo]
+
+To proceed with the repository, you will need to clone the workshop git repository:
+
+* Clone the project to access the files.
+
+[.console-input]
+[source,bash,subs="attributes+,+macros"]
+----
+git clone -b main --single-branch https://github.com/OpenShiftDemos/advanced-gitops-workshop ~/workshop
+----
