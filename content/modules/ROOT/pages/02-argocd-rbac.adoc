@@ -34,17 +34,16 @@ the following command to see how your Argo CD instance is currently configured w
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ---
-TODO
+ oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | jq .
 ---
 
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-  rbac:
     defaultPolicy: ''
     policy: |
-      g, system:cluster-admins, role:admin
-      g, cluster-admins, role:admin
+        g, system:cluster-admins, role:admin
+        g, cluster-admins, role:admin
     scopes: '[groups]'
 ----
 
@@ -63,21 +62,12 @@ Any permissions given in the `policy:default` cannot be removed by additional ro
 use an empty string so no permissions are granted. The author prefers to explicitly define a `role:none` for this purpose
 to avoid ambiguity but here we follow Argo CD defaults.
 
-Now let's look at what groups you are member of:
+Now let's look at what groups you are member of, in the Argo CD user interface select the User Info section in the left
+sidebar:
 
-[.console-input]
-[source,sh,subs="attributes",role=execute]
----
-TODO
----
+image::argocd-groups.png[]
 
-[.console-output]
-[source,bash,subs="attributes+,+macros"]
-----
-TODO
-----
-
-Notice you are not a member of the cluster-admins group, rather you are a member of the `developers` and `team{user-num}`
+Notice you are not a member of the cluster-admins group, rather you are a member of the `team{user-num}`
 group. Since the Argo CD RBAC we looked at earlier do not include these groups this means you do not have any access to
 the Argo CD instance.
 
@@ -87,7 +77,7 @@ using the following command:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ---
-TODO
+oc apply -n {user}-argocd -f ~/workshop/content/modules/ROOT/examples/rbac/argocd.yaml | sed "s/%USER%/{user}/"
 ---
 
 Check the results of this patch by executing the previous command to fetch the RBAC:
@@ -95,7 +85,7 @@ Check the results of this patch by executing the previous command to fetch the R
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ---
-TODO
+oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | jq .
 ---
 
 [.console-output]
