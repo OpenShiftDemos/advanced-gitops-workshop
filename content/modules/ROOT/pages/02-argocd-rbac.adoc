@@ -33,9 +33,9 @@ the following command to see how your Argo CD instance is currently configured w
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
----
+----
  oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | jq .
----
+----
 
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
@@ -60,9 +60,46 @@ here can be used to match groups in the policy section.
 [IMPORTANT]
 Any permissions given in the `policy:default` cannot be removed by additional roles using a `deny` permission hence why we
 use an empty string so no permissions are granted. The author prefers to explicitly define a `role:none` for this purpose
-to avoid ambiguity but here we follow Argo CD defaults.
+to avoid ambiguity as will see shortly.
 
-Now let's look at what groups you are member of, in the Argo CD user interface select the User Info section in the left
+Let's go ahead and deploy an Application and see if we have permissions. Click on the `+New App` button:
+
+image::argocd-new-app.png[]
+
+Next click on the `Edit YAML` button:
+
+image::argocd-create-app.png[]
+
+This will take you to a YAML editor, paste the following Application YAML:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bgd
+  namespace: {user}-argocd
+spec:
+  destination:
+    namespace: bgd
+    server: https://kubernetes.default.svc
+  source:
+    path: bgd/base
+    repoURL: https://github.com/gitops-examples/getting-started
+    targetRevision: HEAD
+  project: default
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+----
+
+Press `Save` to go back to the form view and then press `Create`, notice you receive the following error message:
+
+image::argocd-permission-denied.png[]
+
+What's the issue? Let's start by looking at what groups you are member of, in the Argo CD user interface select the User Info section in the left
 sidebar:
 
 image::argocd-groups.png[]
@@ -89,22 +126,20 @@ oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | jq .
 ----
 
 [.console-output]
-[source,bash,subs="attributes+,+macros"]
+[source,yaml,subs="attributes+,+macros"]
 ----
-  rbac:
-    defaultPolicy: ''
+    defaultPolicy: role:none
     policy: |
+      p, role:none, *, *, */*, deny
       g, system:cluster-admins, role:admin
-      g, cluster-admins, role:admin
-      g, team{user-num}, role:admin
-    scopes: '[groups]'
+      g, team2, role:admin
 ----
 
-Notice a new group has been added granting users in your team group the `admin` role.
+Notice a new group has been added to the policy section granting users in team{usernum} the `admin` role.
 
-We can also define our own policies here if we need to have more fine-grained permissions. We will look at the more
-later when talking about Argo CD Projects and RBAC but first we need to understand what an Argo CD Project is and
-why it is needed.
+We can also define our own policies here, as we can see with the new `role:none` that was added, if we need to define
+fine-grained permissions. We will look at the more later when talking about Argo CD Projects and RBAC but first we
+need to understand what an Argo CD Project is and why it is needed.
 
 === Argo CD Projects
 

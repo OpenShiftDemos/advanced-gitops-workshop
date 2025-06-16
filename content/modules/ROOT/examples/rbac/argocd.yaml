@@ -26,7 +26,7 @@ spec:
     policy: |
       p, role:none, *, *, */*, deny
       g, system:cluster-admins, role:admin
-      g, team2, role: admin
+      g, team2, role:admin
     scopes: '[groups]'
   extraConfig:
     accounts.%USER%-cli: apiKey
