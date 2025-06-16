@@ -76,17 +76,17 @@ using the following command:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
----
+----
 oc apply -n {user}-argocd -f ~/workshop/content/modules/ROOT/examples/rbac/argocd.yaml | sed "s/%USER%/{user}/"
----
+----
 
 Check the results of this patch by executing the previous command to fetch the RBAC:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
----
+----
 oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | jq .
----
+----
 
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
