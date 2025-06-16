@@ -148,10 +148,9 @@ oc get all -n {user}-argocd
 ----
 
 [#clone-repo]
+== Clone Repository
 
-To proceed with the repository, you will need to clone the workshop git repository:
-
-* Clone the project to access the files.
+To proceed with the workshop, you will need to clone the workshop git repository:
 
 [.console-input]
 [source,bash,subs="attributes+,+macros"]
