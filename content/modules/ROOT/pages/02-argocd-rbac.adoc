@@ -104,8 +104,8 @@ sidebar:
 
 image::argocd-groups.png[]
 
-Notice you are not a member of the cluster-admins group, rather you are a member of the `team{user-num}`
-group. Since the Argo CD RBAC we looked at earlier do not include these groups this means you do not have any access to
+Notice you are not a member of the cluster-admins group, rather you are a member of the `team{usernum}`
+group. Since the Argo CD RBAC we looked at earlier does not include this group this means you do not have any access to
 the Argo CD instance.
 
 Let's go ahead and change that by giving ourselves `admin` access to the instance. To do this we will add a new group to the RBAC definition
