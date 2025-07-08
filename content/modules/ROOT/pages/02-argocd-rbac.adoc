@@ -176,6 +176,9 @@ Wait for the Application to become Healthy and Synched as follows:
 
 image::argocd-bgd-app.png[]
 
+In the first line of the Application it shows the Application belongs to the `default` project, in the next section we will look at how Projects
+are used in Argo CD and why it is important to define them for multi-tenant Argo CD instances.
+
 === Argo CD Projects
 
 Argo CD link:https://argo-cd.readthedocs.io/en/stable/user-guide/projects/[Projects,window='_blank'] are used to group Applications together as well as manage
