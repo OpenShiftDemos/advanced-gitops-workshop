@@ -28,7 +28,12 @@ Roles and permissions can be defined in two places, globally and on a per Projec
 roles and permissions be defined in the Project and global roles be reserved for Argo CD administrators and managing
 globally scoped resources.
 
-By default the RBAC included in a default instance of Argo CD only grants permissions to a user with cluster-admin permissions. Run
+=== Argo CD Global RBAC
+
+The global permissions for Argo CD are defined in the Argo CD Custom Resource (CR) when using the Argo CD Operator. If you are
+not using the operator then these global roles are defined in the `argocd-rbac-cm` ConfigMap.
+
+By default with OpenShift GitOps the RBAC included in a default instance of Argo CD only grants permissions to a user with cluster-admin permissions. Run
 the following command to see how your Argo CD instance is currently configured with respect to RBAC:
 
 [.console-input]
@@ -94,7 +99,7 @@ spec:
     automated:
       prune: false
       selfHeal: true
-----\
+----
 
 Press `Save` to go back to the form view and then press `Create`, notice you receive the following error message:
 
