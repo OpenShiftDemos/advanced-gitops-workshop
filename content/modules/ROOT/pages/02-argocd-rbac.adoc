@@ -117,18 +117,6 @@ using the following patch:
 include::ROOT:example$rbac/argocd_rbac_patch.yaml[]
 ----
 
-Notice the new group adding team{usernum} to the list of groups who can act as an administrator.
-
-However notice that we change the `defaultPolicy` to `role:none` and we define this role with a policy (p) rather then a group (g):
-
-[source,yaml,subs="+macros,attributes+"]
-----
-p, role:none, *, *, */*, deny
-----
-
-This is a simple policy that denies access to everything, when we look into Argo CD Projects and RBAC in subsequent sections we will break down
-the policy definition in much more detail.
-
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
@@ -186,7 +174,7 @@ spec:
 
 Wait for the Application to become Healthy and Synched as follows:
 
-
+image::argocd-bgd-app.png[]
 
 === Argo CD Projects
 
