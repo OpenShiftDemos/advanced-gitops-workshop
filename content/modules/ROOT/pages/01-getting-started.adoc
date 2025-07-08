@@ -147,6 +147,45 @@ Check that these have been deployed successfully in your Argo CD namespace:
 oc get all -n {user}-argocd
 ----
 
+The output should be similar to below:
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME                                     READY   STATUS    RESTARTS   AGE
+pod/argocd-application-controller-0      1/1     Running   1          24h
+pod/argocd-dex-server-54bf95c46d-fzn4d   1/1     Running   1          24h
+pod/argocd-redis-94bfd64d5-lqgh4         1/1     Running   1          24h
+pod/argocd-repo-server-8f9c7f89d-p9kft   1/1     Running   1          24h
+pod/argocd-server-9cf9995bc-r97cm        1/1     Running   1          24h
+
+NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
+service/argocd-dex-server       ClusterIP   172.30.227.203   <none>        5556/TCP,5557/TCP   24h
+service/argocd-metrics          ClusterIP   172.30.242.232   <none>        8082/TCP            24h
+service/argocd-redis            ClusterIP   172.30.103.124   <none>        6379/TCP            24h
+service/argocd-repo-server      ClusterIP   172.30.147.215   <none>        8081/TCP,8084/TCP   24h
+service/argocd-server           ClusterIP   172.30.167.47    <none>        80/TCP,443/TCP      24h
+service/argocd-server-metrics   ClusterIP   172.30.229.33    <none>        8083/TCP            24h
+
+NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/argocd-dex-server    1/1     1            1           24h
+deployment.apps/argocd-redis         1/1     1            1           24h
+deployment.apps/argocd-repo-server   1/1     1            1           24h
+deployment.apps/argocd-server        1/1     1            1           24h
+
+NAME                                           DESIRED   CURRENT   READY   AGE
+replicaset.apps/argocd-dex-server-54bf95c46d   1         1         1       24h
+replicaset.apps/argocd-redis-94bfd64d5         1         1         1       24h
+replicaset.apps/argocd-repo-server-8f9c7f89d   1         1         1       24h
+replicaset.apps/argocd-server-9cf9995bc        1         1         1       24h
+
+NAME                                             READY   AGE
+statefulset.apps/argocd-application-controller   1/1     24h
+
+NAME                                     HOST/PORT                                                                     PATH   SERVICES        PORT    TERMINATION          WILDCARD
+route.route.openshift.io/argocd-server   argocd-server-user2-argocd.apps.cluster-jvqvl.jvqvl.sandbox1915.opentlc.com          argocd-server   https   reencrypt/Redirect   None
+----
+
 [#clone-repo]
 == Clone Repository
 

@@ -34,13 +34,13 @@ the following command to see how your Argo CD instance is currently configured w
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
- oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq .
+ oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq . -P
 ----
 
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-    defaultPolicy: ''
+    defaultPolicy: ""
     policy: |
         g, system:cluster-admins, role:admin
         g, cluster-admins, role:admin
@@ -51,8 +51,9 @@ A few items to note about this global configuration:
 
 * First the `policy.default` is set to an empty string so that users are denied access to resources by default with permissions needing
 to be explicitly enabled.
-** Users in the `system:cluster-admins` group are assigned to the `admin` role, this group only applies to the `kube-admin` user.
-** The next policy operates similarly but grants the `admin` role to any users in the cluster-admins group.
+* Next we have the policy section where we define policies and assign them to groups.
+** Users in the `system:cluster-admins` group are assigned to the `role:admin` role, this group only applies to the `kube-admin` user.
+** The next line operates similarly but grants the `role:admin` role to any users in the cluster-admins group.
 * Finally scopes are set to include accounts, groups and email. Argo CD uses OIDC for authentication and this
 matches OIDC link:https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims[scopes, window="_blank"], scopes selected
 here can be used to match groups in the policy section.
