@@ -94,7 +94,7 @@ spec:
     automated:
       prune: false
       selfHeal: true
-----
+----\
 
 Press `Save` to go back to the form view and then press `Create`, notice you receive the following error message:
 
@@ -110,12 +110,29 @@ group. Since the Argo CD RBAC we looked at earlier does not include this group t
 the Argo CD instance.
 
 Let's go ahead and change that by giving ourselves `admin` access to the instance. To do this we will add a new group to the RBAC definition
-using the following command:
+using the following patch:
+
+[source,yaml,subs="+macros,attributes+"]
+----
+include::ROOT:example$rbac/argocd_rbac_patch.yaml[]
+----
+
+Notice the new group adding team{usernum} to the list of groups who can act as an administrator.
+
+However notice that we change the `defaultPolicy` to `role:none` and we define this role with a policy (p) rather then a group (g):
+
+[source,yaml,subs="+macros,attributes+"]
+----
+p, role:none, *, *, */*, deny
+----
+
+This is a simple policy that denies access to everything, when we look into Argo CD Projects and RBAC in subsequent sections we will break down
+the policy definition in much more detail.
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-cat ~/workshop/content/modules/ROOT/examples/rbac/argocd.yaml | sed "s/%USER%/{user}/" | sed "s/%USERNUM%/{usernum}/" | oc apply -n {user}-argocd -f -
+sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/argocd_rbac_patch.yaml | kubectl patch -n user{usernum}-argocd argocd argocd --type=merge --patch-file=/dev/stdin
 ----
 
 Check the results of this patch by executing the previous command to fetch the RBAC:
@@ -123,7 +140,7 @@ Check the results of this patch by executing the previous command to fetch the R
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq .
+oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq . -P
 ----
 
 [.console-output]
