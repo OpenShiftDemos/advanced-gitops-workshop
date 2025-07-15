@@ -72,7 +72,7 @@ sidebar:
 
 image::argocd-groups.png[]
 
-Notice that the only non-system group that you are a member of is team{usernum}, check the Global RBAC to see what groups have been
+Notice that the only non-system group that you are a member of is `team{usernum}`, check the Global RBAC to see what groups have been
 granted permissions:
 
 [.console-input]
@@ -94,8 +94,8 @@ granted permissions:
 By default with OpenShift GitOps the RBAC included in a default instance of Argo CD only grants permissions to a user with cluster-admin permissions and
 we are not a member of that group.
 
-We could remediate the problem by defining permissions for the `team{usernum}` group here in the global RBAC but let's start with a bottom-up
-approach by creating a new Argo CD Project with the needed permissions and then circle back to the global RBAC.
+We could remediate the problem by defining permissions for the `team{usernum}` group here in the Global RBAC but let's start with a bottom-up
+approach by creating a new Argo CD Project with the needed permissions and then circle back to the Global RBAC.
 
 === Argo CD Projects
 
@@ -160,14 +160,24 @@ spec:
 ----
 
 Note the `default` Project has no restrictions associated with it, Applications using this Project can deploy any resource, namespace or cluster
-that Argo CD itself has access to.
+that Argo CD itself has access to. However no permissions have been defined here either which means that unless we have permissions
+defined in the Global RBAC, which we already checked, we cannot deploy any Applications with the `default` project.
 
 [NOTE]
 Remember that Argo CD only has access to the Kubernetes resources that the `argocd-argocd-application-controller` ServiceAccount has been
-given access to in Kubernetes. So even though the Project may provide access to everything Argo CD is still potentially restricted
+given access to in Kubernetes. So even though the Project may not restrict access to everything Argo CD is still potentially restricted
 by the Kubernetes permissions it has been granted,
 
 Since we don't want to use the `default` Project, we will create a new Project to deploy Applications
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/appproject.yaml | oc apply -n user{usernum}-argocd -f -
+----
+
+
+
 
 In our Shared GitOps instance each workshop team, and thus user, has their own Project to manage access and restrictions for their Applications. To
 view your teams project, use the CLI to run the following command:

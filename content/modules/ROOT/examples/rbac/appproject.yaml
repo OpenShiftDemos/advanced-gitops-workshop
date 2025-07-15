@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team%USERNUM%
+  namespace: user%USERNUM%-argocd
+spec:
+  description: Team%USERNUM%'s' Project
+  destinations:
+  - namespace: user%USERNUM%-dev
+    server: https://kubernetes.default.svc
+  - namespace: user%USERNUM%-stage
+    server: https://kubernetes.default.svc
+  - namespace: user%USERNUM%-prod
+    server: https://kubernetes.default.svc
+  sourceRepos:
+  - https://github.com/OpenShiftDemos/advanced-gitops-workshop
+  roles:
+    - description: user%USERNUM% Admins
+      name: admin
+      groups:
+        - team%USERNUM%
+      policies:
+        - p, proj:team%USERNUM%:admin, applications, *, team%USERNUM%/*, allow
+        - p, proj:team%USERNUM%:admin, exec, create, team%USERNUM%/*, allow
