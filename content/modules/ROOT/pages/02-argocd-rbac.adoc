@@ -270,9 +270,12 @@ down the first policy into it's constituent parts to understand how it is define
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-policies:
-- p   , proj:workshop:admin, applications, * , workshop/*, allow
-  <1>          <2>                <3>     <4>     <5>       <6>
+p   , <1>
+proj:workshop:admin, <2>
+applications, <3>
+* , <4>
+workshop/*, <5>
+allow <6>
 ----
 
 <1> The letter `p` indicates that a policy is being defined, this is how we assign
