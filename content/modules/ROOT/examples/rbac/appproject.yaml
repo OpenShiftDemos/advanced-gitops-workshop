@@ -5,6 +5,22 @@ metadata:
   namespace: user%USERNUM%-argocd
 spec:
   description: Team%USERNUM%'s' Project
+  clusterResourceBlacklist:
+  - group: '*'
+    kind: '*'
+  namespaceResourceBlacklist:
+  - group: ''
+    kind: Namespace
+  - group: ''
+    kind: ResourceQuota
+  - group: ''
+    kind: LimitRange
+  - group: operators.coreos.com
+    kind: '*'
+  - group: operator.openshift.io
+    kind: '*'
+  - group: storage.k8s.io
+    kind: '*'
   destinations:
   - namespace: user%USERNUM%-dev
     server: https://kubernetes.default.svc

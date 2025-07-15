@@ -176,67 +176,74 @@ Since we don't want to use the `default` Project, we will create a new Project t
 sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/appproject.yaml | sed "s/%USERNUM%\//{usernum}\//" | oc apply -n user{usernum}-argocd -f -
 ----
 
-
-
-In our Shared GitOps instance each workshop team, and thus user, has their own Project to manage access and restrictions for their Applications. To
-view your teams project, use the CLI to run the following command:
-
+Now view the AppProject we just created:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-argocd proj list
-----
-
-Notice that a single project is listed:
-
-[.console-output]
-[source,bash,subs="attributes+,+macros"]
-----
-NAME   DESCRIPTION    DESTINATIONS    SOURCES  CLUSTER-RESOURCE-WHITELIST  NAMESPACE-RESOURCE-BLACKLIST  SIGNATURE-KEYS  ORPHANED-RESOURCES
-{user}  {user} project  5 destinations  *        <none>                      <none>                        <none>          disabled
-----
-
-A detailed view of the project is retrieved by using the `get` command:
-
-[.console-input]
-[source,sh,subs="attributes",role=execute]
-----
-argocd proj get {user}
+oc get appproject workshop -n {user}-argocd -o yaml | oc neat
 ----
 
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-Name:                        {user}
-Description:                 {user} project
-Destinations:                .{user}-argocd
-                             ,{user}-dev
-                             ,{user}-prod
-                             ,{user}-cicd
-Repositories:                *
-Scoped Repositories:         <none>
-Allowed Cluster Resources:   <none>
-Scoped Clusters:             <none>
-Denied Namespaced Resources: /Namespace
-                             /ResourceQuota
-                             /LimitRange
-                             operators.coreos.com/*
-                             operator.openshift.io/*
-                             storage.k8s.io/*
-                             machine.openshift.io/*
-                             machineconfiguration.openshift.io/*
-                             compliance.openshift.io/*
-Signature keys:              <none>
-Orphaned Resources:          disabled
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: workshop
+  namespace: user2-argocd
+spec:
+  description: Team2's' Project
+  clusterResourceBlacklist:
+  - group: '*'
+    kind: '*'
+  namespaceResourceBlacklist:
+  - group: ''
+    kind: Namespace
+  - group: ''
+    kind: ResourceQuota
+  - group: ''
+    kind: LimitRange
+  - group: operators.coreos.com
+    kind: '*'
+  - group: operator.openshift.io
+    kind: '*'
+  - group: storage.k8s.io
+    kind: '*'
+  destinations:
+  - namespace: user2-dev
+    server: https://kubernetes.default.svc
+  - namespace: user2-stage
+    server: https://kubernetes.default.svc
+  - namespace: user2-prod
+    server: https://kubernetes.default.svc
+  roles:
+  - description: Team2 Admins
+    groups:
+    - team2
+    name: admin
+    policies:
+    - p, proj:workshop:admin, applications, *, workshop/*, allow
+    - p, proj:workshop:admin, exec, create, workshop/*, allow
+  sourceRepos:
+  - https://github.com/OpenShiftDemos/advanced-gitops-workshop
+  - https://github.com/gitops-examples/getting-started
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
 ----
 
-Notice that your user's Applications are limited to deploying to a specific set of namespaces, the `{user}-*` namespaces.
+Notice that the `workshop` Project limits Applications to a specific set of namespaces, the `{user}-dev`, `{user}-stage` and `{user}-prod` namespaces. We also
+limited the destinations to the local Kubernetes server with `server: https://kubernetes.default.svc`.
+
+[NOTE]
+You can wildcard the namespaces and we could have had a single destination using `{user}-*`, however we do not want to have `{user}-argocd` as a valid destination.
+
 This limitation on destinations ensures that Applications in this Project cannot deploy resources to other namespaces
-even though the underlying Argo CD application-controller has permissions to do so.
+even though the underlying Argo CD application-controller may have permissions to do so. This is recommended when configuring
+Argo CD for multi-tenant use cases.
 
 Also note that we are denying access to some types of resources. All cluster scoped resources, i.e. resources without a namespace,
 are denied. Also note that we are denying access to specific namespace scoped resources such as ResourceQuota and LimitRange because
-it is the purview of the platform team to manage these resources.
+this is typically the purview of the platform team to manage these resources.
 
 Finally some Argo CD resources, such as clusters and repositories, can be scoped globally or at a Project level. Scoping resources
 at a Project level can be useful in cases where the Argo CD administrator would like to enable self-service
@@ -245,80 +252,64 @@ more about this capability the Argo CD documentation covers this topic in depth.
 
 link:https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters[Project scoped Repositories and Clusters,window="_blank"]
 
+=== Argo CD Project RBAC
 
-Now let's look at the RBAC defined in the Project that has been setup for your team and user:
+Now let's focus on the RBAC defined in the `workshop` Project that we created:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-argocd proj role list {user}
+ oc get appproject workshop -n {user}-argocd -o=jsonpath="{.spec.roles}" | yq . -P
 ----
 
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-ROLE-NAME  DESCRIPTION
-admin      TeamX admins
-pipeline   Pipeline accounts
+  roles:
+  - description: Team2 Admins
+    groups:
+    - team2
+    name: admin
+    policies:
+    - p, proj:workshop:admin, applications, *, workshop/*, allow
+    - p, proj:workshop:admin, exec, create, workshop/*, allow
 ----
 
-This shows that two roles are defined, `admin` and `pipeline`. The `admin` role is intended for
-users who will administer Applications in this Project. The `pipeline` role is intended
-for automation tools and will be used by OpenShift Pipelines in a later module.
-
-Now look at how the roles are defined:
-
-[.console-input]
-[source,sh,subs="attributes",role=execute]
-----
-argocd proj role get {user} admin
-----
-
-[.console-output]
-[source,bash,subs="attributes+,+macros"]
-----
-Role Name:     admin
-Description:   TeamX admins
-Policies:
-p, proj:{user}:admin, projects, get, {user}, allow
-p, proj:{user}:admin, applications, *, {user}/*, allow
-p, proj:{user}:admin, exec, create, {user}/*, allow
-g, team1, proj:{user}:admin
-g, user1-cli, proj:{user}:admin
-p, proj:{user}:pipeline, projects, get, {user}, allow
-p, proj:{user}:pipeline, applications, get, {user}/*, allow
-p, proj:{user}:pipeline, applications, sync, {user}/*, allow
-g, {user}-pipeline, proj:{user}:pipeline
-----
-
-Here we can see information about the role including policies, let's break
+Here we are defining a single role, `admin`, that is associated with the group `team2`. We use the policies
+section to add specific permissions to the `admin` role. Let's break
 down the first policy into it's constituent parts to understand how it is defined.
 
-image::gitops/argocd-policy.png[]
+[.console-output]
+[source,yaml,subs="attributes+,+macros"]
+----
+    policies:
+    - p   , proj:workshop:admin, applications, * , workshop/*, allow
+      (1)          (2)                (3)     (4)     (5)       (6)
+----
 
 1. The letter `p` indicates that a policy is being defined, this is how we assign
 permissions to roles.
 2. Next is the role this policy will be part of. In this case
-it is the `admin` role which is scoped to Project `{user}`.
-3. Then the resource type for which we are giving permissions to, in this case `projects`. Various
+it is the `admin` role which is scoped to the `workshop` Project.
+3. Then the resource type for which we are giving permissions to, in this case `applications`. Various
 Argo CD resource types are supported including `applications`, `clusters`, and
 link:https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-resources-and-actions[more, window="_blank"].
-4. After resource we define the actions for the policy, in this case a single action of `get`. Many
+4. After resource we define the actions for the policy, in this case we use a wildcard, '*', to permit all actions. Many
 different link:https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-resources-and-actions[actions, window="_blank"]
-are available. A wildcard of `*` can be used which indicates all actions.
-5. Next is the specific Argo CD resource, this can be a wildcard like `*` for all resources or a named resource such as `{user}` in this case
-indicating the `{user}` Project. For resources like Applications that are scoped to Projects a notation of
-`<Project>/<Application>` can be used as shown in subsequent lines.
-6. Finally whether we `allow` or `deny` the permission.
+are available.
+5. Next is the specific Argo CD resource, this can be a wildcard like `*` for all resources or a named resource such as specific Applications. In this case
+we have `workshop/*` which allows all Applications that belong to the `workshop` Project.
+6. Finally whether we `allow` or `deny` the permission, in this case we `allow` to grant permissions.
 
-Once we have defined our role via policies we can then assign the policy to a group, this is indicated
-by a `g` at the start of the line. For example, the line `g, teamX, proj:{user}:admin` indicates we
-are assigning the project scoped role `admin` to the group `teamX`.
+The second policy line enables usage of the terminal in the Argo CD user interface
 
-Note that what is considered a `group` for matching purposes is controlled by the `scope` that was
-reviewed earlier. While `groups` is the most commonly set scope, having scopes like `email`
-allows you to match roles to individual users. In a nutshell, when adding additional scopes, like `email`, these
-are treated as groups by Argo CD for matching purposes.
+Now let's try to create Application again.
+
+
+
+
+
+
 
 As discussed, the ability to view this basic project has been granted but
 not to modify or delete it. To confirm that, try deleting the Project:
