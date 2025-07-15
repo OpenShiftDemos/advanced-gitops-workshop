@@ -14,6 +14,7 @@ spec:
     server: https://kubernetes.default.svc
   sourceRepos:
   - https://github.com/OpenShiftDemos/advanced-gitops-workshop
+  - https://github.com/gitops-examples/getting-started
   roles:
     - description: Team%USERNUM% Admins
       name: admin
