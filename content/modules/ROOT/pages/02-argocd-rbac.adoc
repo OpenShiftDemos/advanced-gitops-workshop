@@ -272,24 +272,24 @@ down the first policy into it's constituent parts to understand how it is define
 ----
     policies:
     - p   , proj:workshop:admin, applications, * , workshop/*, allow
-      (1)          (2)                (3)     (4)     (5)       (6)
+      <1>          <2>                <3>     <4>     <5>       <6>
 ----
 
-1. The letter `p` indicates that a policy is being defined, this is how we assign
+<1> The letter `p` indicates that a policy is being defined, this is how we assign
 permissions to roles.
-2. Next is the role this policy will be part of. In this case
+<2> Next is the role this policy will be part of. In this case
 it is the `admin` role which is scoped to the `workshop` Project.
-3. Then the resource type for which we are giving permissions to, in this case `applications`. Various
+<3> Then the resource type for which we are giving permissions to, in this case `applications`. Various
 Argo CD resource types are supported including `applications`, `clusters`, and
 link:https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-resources-and-actions[more, window="_blank"].
-4. After resource we define the actions for the policy, in this case we use a wildcard, '*', to permit all actions. Many
+<4> After resource we define the actions for the policy, in this case we use a wildcard, '*', to permit all actions. Many
 different link:https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-resources-and-actions[actions, window="_blank"]
 are available.
-5. Next is the specific Argo CD resource, this can be a wildcard like `*` for all resources or a named resource such as specific Applications. In this case
+<5> Next is the specific Argo CD resource, this can be a wildcard like `*` for all resources or a named resource such as specific Applications. In this case
 we have `workshop/*` which allows all Applications that belong to the `workshop` Project.
-6. Finally whether we `allow` or `deny` the permission, in this case we `allow` to grant permissions.
+<6> Finally whether we `allow` or `deny` the permission, in this case we `allow` to grant permissions.
 
-The second policy line enables usage of the terminal in the Argo CD user interface
+The second policy line with the `exec` permission enables usage of the terminal in the Argo CD user interface.
 
 Now let's try to create Application again.
 
