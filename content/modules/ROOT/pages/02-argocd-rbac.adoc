@@ -190,18 +190,23 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: workshop
-  namespace: user2-argocd
+  namespace: {user}-argocd
 spec:
-  description: Team2's' Project
-  clusterResourceBlacklist:
+  clusterResourceBlacklist: (1)
   - group: '*'
     kind: '*'
-  namespaceResourceBlacklist:
-  - group: ''
-    kind: Namespace
-  - group: ''
+  description: Team2's' Project (2)
+  destinations: (3)
+  - namespace: {user}-dev
+    server: https://kubernetes.default.svc
+  - namespace: {user}-stage
+    server: https://kubernetes.default.svc
+  - namespace: {user}-prod
+    server: https://kubernetes.default.svc
+  namespaceResourceBlacklist: (4)
+  - group: ""
     kind: ResourceQuota
-  - group: ''
+  - group: ""
     kind: LimitRange
   - group: operators.coreos.com
     kind: '*'
@@ -209,48 +214,31 @@ spec:
     kind: '*'
   - group: storage.k8s.io
     kind: '*'
-  destinations:
-  - namespace: user2-dev
-    server: https://kubernetes.default.svc
-  - namespace: user2-stage
-    server: https://kubernetes.default.svc
-  - namespace: user2-prod
-    server: https://kubernetes.default.svc
-  roles:
-  - description: Team2 Admins
+  roles: (5)
+  - description: Team{usernum} Admins
     groups:
     - team2
     name: admin
     policies:
     - p, proj:workshop:admin, applications, *, workshop/*, allow
     - p, proj:workshop:admin, exec, create, workshop/*, allow
-  sourceRepos:
+  sourceRepos: (6)
   - https://github.com/OpenShiftDemos/advanced-gitops-workshop
   - https://github.com/gitops-examples/getting-started
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
 
-Notice that the `workshop` Project limits Applications to a specific set of namespaces, the `{user}-dev`, `{user}-stage` and `{user}-prod` namespaces. We also
-limited the destinations to the local Kubernetes server with `server: https://kubernetes.default.svc`.
+Review the items defined by the `workshop` AppProject:
 
-[NOTE]
-You can wildcard the namespaces and we could have had a single destination using `{user}-*`, however we do not want to have `{user}-argocd` as a valid destination.
+<1> First all cluster scoped resources, i.e. resources that don't have a namespace such as ClusterRole. This prevents users from deploying cluster level resources
+<2> We define a friendly description for the project
+<3> The destinations that Applications that belong to this AppProject are permitted to deploy resources. Specifically we permit the `{user}-dev`, `{user}-stage` and `{user}-prod` namespaces in the local cluster Kubernetes server `https://kubernetes.default.svc`. We could wildcard the namespaces with a single destination using `{user}-*`, however we do not want to have `{user}-argocd` as a valid destination.
+<4> Certain namespace scoped resources that are typically the purview of the platform team are blacklisted
+<5> Project scoped `roles` are defined that provide fine-grained permissions. This will be looked at in more detail shortly
+<6> The `sourceRepos` limits which git repositories can be used in Applications.
 
-This limitation on destinations ensures that Applications in this Project cannot deploy resources to other namespaces
-even though the underlying Argo CD application-controller may have permissions to do so. This is recommended when configuring
-Argo CD for multi-tenant use cases.
-
-Also note that we are denying access to some types of resources. All cluster scoped resources, i.e. resources without a namespace,
-are denied. Also note that we are denying access to specific namespace scoped resources such as ResourceQuota and LimitRange because
-this is typically the purview of the platform team to manage these resources.
-
-Finally some Argo CD resources, such as clusters and repositories, can be scoped globally or at a Project level. Scoping resources
-at a Project level can be useful in cases where the Argo CD administrator would like to enable self-service
-for application teams. In this workshop these resources are defined globally however if you would like to learn
-more about this capability the Argo CD documentation covers this topic in depth.
-
-link:https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters[Project scoped Repositories and Clusters,window="_blank"]
+Let's look at the roles that were defined in the next section.
 
 === Argo CD Project RBAC
 

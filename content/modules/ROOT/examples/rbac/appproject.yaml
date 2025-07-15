@@ -10,8 +10,6 @@ spec:
     kind: '*'
   namespaceResourceBlacklist:
   - group: ''
-    kind: Namespace
-  - group: ''
     kind: ResourceQuota
   - group: ''
     kind: LimitRange
