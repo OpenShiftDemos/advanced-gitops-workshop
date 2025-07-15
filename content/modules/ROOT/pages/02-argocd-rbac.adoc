@@ -28,6 +28,363 @@ Roles and permissions can be defined in two places, globally and on a per Projec
 roles and permissions be defined in the Project and global roles be reserved for Argo CD administrators and managing
 globally scoped resources.
 
+=== Test Permissions
+
+Let's confirm we do not have access to deploy Applications at the moment.
+
+image::argocd-new-app.png[]
+
+Next click on the `Edit YAML` button:
+
+image::argocd-create-app.png[]
+
+This will take you to a YAML editor, paste the following Application YAML:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bgd
+  namespace: {user}-argocd
+spec:
+  destination:
+    namespace: {user}-dev
+    server: https://kubernetes.default.svc
+  source:
+    path: bgd/base
+    repoURL: https://github.com/gitops-examples/getting-started
+    targetRevision: HEAD
+  project: default
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+----
+
+Press `Save` to go back to the form view and then press `Create`, notice you receive the following error message:
+
+image::argocd-permission-denied.png[]
+
+What's the issue? Let's start by looking at what groups you are member of, in the Argo CD user interface select the User Info section in the left
+sidebar:
+
+image::argocd-groups.png[]
+
+Notice that the only non-system group that you are a member of is team{usernum}, check the Global RBAC to see what groups have been
+granted permissions:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+ oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq . -P
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+    defaultPolicy: ""
+    policy: |
+        g, system:cluster-admins, role:admin
+        g, cluster-admins, role:admin
+    scopes: '[groups]'
+----
+
+By default with OpenShift GitOps the RBAC included in a default instance of Argo CD only grants permissions to a user with cluster-admin permissions and
+we are not a member of that group.
+
+We could remediate the problem by defining permissions for the `team{usernum}` group here in the global RBAC but let's start with a bottom-up
+approach by creating a new Argo CD Project with the needed permissions and then circle back to the global RBAC.
+
+=== Argo CD Projects
+
+Argo CD link:https://argo-cd.readthedocs.io/en/stable/user-guide/projects/[Projects,window='_blank'] are used to group Applications together as well as manage
+permissions to the Applications and other Project scoped resources. Keep in mind that an Argo CD Project is different then an OpenShift Project despite using
+the same terminology. An OpenShift Project is represented by `kind: Project` in Kubernetes whereas an Argo CD Project is represented by `kind: AppProject`.
+
+While every Application in Argo CD must be associated with a Project, they are particularly useful when managing a multi-tenant Argo CD as the Project not
+only determines the user permissions but can also restrict what Applications associated with the Project can do. As per the
+link:https://argo-cd.readthedocs.io/en/stable/user-guide/projects[documentation], an Argo CD Project can:
+
+* restrict what may be deployed (trusted Git source repositories)
+* restrict where apps may be deployed to (destination clusters and namespaces)
+* restrict what kinds of objects may or may not be deployed (e.g. RBAC, CRDs, DaemonSets, NetworkPolicy etc...)
+* defining project roles to provide application RBAC (bound to OIDC groups and/or JWT tokens)
+
+[IMPORTANT]
+Argo CD includes a `default` project when it is installed, it is strongly recommended that this never be used and administrators create
+Projects as needed to support their specific use cases.
+
+Let's see what projects are available in Argo CD:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+oc get appproject -n {user}-argocd
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME      AGE
+default   168m
+----
+
+As expected, since this is a default Argo CD instance we only have the `default` AppProject. To view the definition of the `default` project
+run the following:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+oc get appproject default -n {user}-argocd -o yaml | oc neat
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: user4-argocd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: '*'
+    server: '*'
+  sourceRepos:
+  - '*'
+----
+
+Note the `default` Project has no restrictions associated with it, Applications using this Project can deploy any resource, namespace or cluster
+that Argo CD itself has access to.
+
+[NOTE]
+Remember that Argo CD only has access to the Kubernetes resources that the `argocd-argocd-application-controller` ServiceAccount has been
+given access to in Kubernetes. So even though the Project may provide access to everything Argo CD is still potentially restricted
+by the Kubernetes permissions it has been granted,
+
+Since we don't want to use the `default` Project, we will create a new Project to deploy Applications
+
+In our Shared GitOps instance each workshop team, and thus user, has their own Project to manage access and restrictions for their Applications. To
+view your teams project, use the CLI to run the following command:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd proj list
+----
+
+Notice that a single project is listed:
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME   DESCRIPTION    DESTINATIONS    SOURCES  CLUSTER-RESOURCE-WHITELIST  NAMESPACE-RESOURCE-BLACKLIST  SIGNATURE-KEYS  ORPHANED-RESOURCES
+{user}  {user} project  5 destinations  *        <none>                      <none>                        <none>          disabled
+----
+
+A detailed view of the project is retrieved by using the `get` command:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd proj get {user}
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+Name:                        {user}
+Description:                 {user} project
+Destinations:                .{user}-argocd
+                             ,{user}-dev
+                             ,{user}-prod
+                             ,{user}-cicd
+Repositories:                *
+Scoped Repositories:         <none>
+Allowed Cluster Resources:   <none>
+Scoped Clusters:             <none>
+Denied Namespaced Resources: /Namespace
+                             /ResourceQuota
+                             /LimitRange
+                             operators.coreos.com/*
+                             operator.openshift.io/*
+                             storage.k8s.io/*
+                             machine.openshift.io/*
+                             machineconfiguration.openshift.io/*
+                             compliance.openshift.io/*
+Signature keys:              <none>
+Orphaned Resources:          disabled
+----
+
+Notice that your user's Applications are limited to deploying to a specific set of namespaces, the `{user}-*` namespaces.
+This limitation on destinations ensures that Applications in this Project cannot deploy resources to other namespaces
+even though the underlying Argo CD application-controller has permissions to do so.
+
+Also note that we are denying access to some types of resources. All cluster scoped resources, i.e. resources without a namespace,
+are denied. Also note that we are denying access to specific namespace scoped resources such as ResourceQuota and LimitRange because
+it is the purview of the platform team to manage these resources.
+
+Finally some Argo CD resources, such as clusters and repositories, can be scoped globally or at a Project level. Scoping resources
+at a Project level can be useful in cases where the Argo CD administrator would like to enable self-service
+for application teams. In this workshop these resources are defined globally however if you would like to learn
+more about this capability the Argo CD documentation covers this topic in depth.
+
+link:https://argo-cd.readthedocs.io/en/stable/user-guide/projects/#project-scoped-repositories-and-clusters[Project scoped Repositories and Clusters,window="_blank"]
+
+
+Now let's look at the RBAC defined in the Project that has been setup for your team and user:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd proj role list {user}
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+ROLE-NAME  DESCRIPTION
+admin      TeamX admins
+pipeline   Pipeline accounts
+----
+
+This shows that two roles are defined, `admin` and `pipeline`. The `admin` role is intended for
+users who will administer Applications in this Project. The `pipeline` role is intended
+for automation tools and will be used by OpenShift Pipelines in a later module.
+
+Now look at how the roles are defined:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd proj role get {user} admin
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+Role Name:     admin
+Description:   TeamX admins
+Policies:
+p, proj:{user}:admin, projects, get, {user}, allow
+p, proj:{user}:admin, applications, *, {user}/*, allow
+p, proj:{user}:admin, exec, create, {user}/*, allow
+g, team1, proj:{user}:admin
+g, user1-cli, proj:{user}:admin
+p, proj:{user}:pipeline, projects, get, {user}, allow
+p, proj:{user}:pipeline, applications, get, {user}/*, allow
+p, proj:{user}:pipeline, applications, sync, {user}/*, allow
+g, {user}-pipeline, proj:{user}:pipeline
+----
+
+Here we can see information about the role including policies, let's break
+down the first policy into it's constituent parts to understand how it is defined.
+
+image::gitops/argocd-policy.png[]
+
+1. The letter `p` indicates that a policy is being defined, this is how we assign
+permissions to roles.
+2. Next is the role this policy will be part of. In this case
+it is the `admin` role which is scoped to Project `{user}`.
+3. Then the resource type for which we are giving permissions to, in this case `projects`. Various
+Argo CD resource types are supported including `applications`, `clusters`, and
+link:https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-resources-and-actions[more, window="_blank"].
+4. After resource we define the actions for the policy, in this case a single action of `get`. Many
+different link:https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-resources-and-actions[actions, window="_blank"]
+are available. A wildcard of `*` can be used which indicates all actions.
+5. Next is the specific Argo CD resource, this can be a wildcard like `*` for all resources or a named resource such as `{user}` in this case
+indicating the `{user}` Project. For resources like Applications that are scoped to Projects a notation of
+`<Project>/<Application>` can be used as shown in subsequent lines.
+6. Finally whether we `allow` or `deny` the permission.
+
+Once we have defined our role via policies we can then assign the policy to a group, this is indicated
+by a `g` at the start of the line. For example, the line `g, teamX, proj:{user}:admin` indicates we
+are assigning the project scoped role `admin` to the group `teamX`.
+
+Note that what is considered a `group` for matching purposes is controlled by the `scope` that was
+reviewed earlier. While `groups` is the most commonly set scope, having scopes like `email`
+allows you to match roles to individual users. In a nutshell, when adding additional scopes, like `email`, these
+are treated as groups by Argo CD for matching purposes.
+
+As discussed, the ability to view this basic project has been granted but
+not to modify or delete it. To confirm that, try deleting the Project:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd proj delete {user}
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+FATA[0000] rpc error: code = PermissionDenied desc = permission denied: projects, delete, user1, sub: user1-cli, iat: 2024-07-30T17:14:43Z
+----
+
+As expected we were denied permission to delete the Project. Again as a reminder the Argo RBAC is only used when you interact with
+Argo CD via its UI or CLI. If you have permissions on the `AppProject` kind in the Argo CD namespace you could delete the resource
+with `oc delete appproject {user} -n gitops` and the Argo CD RBAC would never be checked,
+
+This inability to let users interact with resources in the Argo CD namespace is a challenge when you want to give users the ability to
+declaratively manage Applications instead of managing them imperatively via the UI or CLI, fortunately
+Argo CD has you covered as we will see in the next module.
+
+Let's go ahead and deploy an Application and see if we have permissions. Click on the `+New App` button:
+
+image::argocd-new-app.png[]
+
+Next click on the `Edit YAML` button:
+
+image::argocd-create-app.png[]
+
+This will take you to a YAML editor, paste the following Application YAML:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bgd
+  namespace: {user}-argocd
+spec:
+  destination:
+    namespace: {user}-dev
+    server: https://kubernetes.default.svc
+  source:
+    path: bgd/base
+    repoURL: https://github.com/gitops-examples/getting-started
+    targetRevision: HEAD
+  project: default
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+----
+
+Press `Save` to go back to the form view and then press `Create`, notice you receive the following error message:
+
+image::argocd-permission-denied.png[]
+
+What's the issue? Let's start by looking at what groups you are member of, in the Argo CD user interface select the User Info section in the left
+sidebar:
+
+image::argocd-groups.png[]
+
+Notice you are not a member of the cluster-admins group, rather you are a member of the `team{usernum}`
+group. Since the Argo CD RBAC we looked at earlier does not include this group this means you do not have any access to
+the Argo CD instance.
+
+
+
+
+
+
 === Argo CD Global RBAC
 
 The global permissions for Argo CD are defined in the Argo CD Custom Resource (CR) when using the Argo CD Operator. If you are
@@ -192,7 +549,7 @@ the same terminology. An OpenShift Project is represented by `kind: Project` in 
 
 While every Application in Argo CD must be associated with a Project, they are particularly useful when managing a multi-tenant Argo CD as the Project not
 only determines the user permissions but can also restrict what Applications associated with the Project can do. As per the
-documentation, an Argo CD Project can:
+link:https://argo-cd.readthedocs.io/en/stable/user-guide/projects[documentation], an Argo CD Project can:
 
 * restrict what may be deployed (trusted Git source repositories)
 * restrict where apps may be deployed to (destination clusters and namespaces)
@@ -208,16 +565,53 @@ Let's see what projects are available in Argo CD:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-oc get appproject
+oc get appproject -n {user}-argocd
 ----
 
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-TODO
+NAME      AGE
+default   168m
 ----
 
-Notice as per a default Argo CD instance we only have the `default` AppProject.
+As expected, since this is a default Argo CD instance we only have the `default` AppProject. To view the definition of the `default` project
+run the following:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+oc get appproject default -n {user}-argocd -o yaml | oc neat
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: user4-argocd
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  destinations:
+  - namespace: '*'
+    server: '*'
+  sourceRepos:
+  - '*'
+----
+
+Note the `default` Project has no restrictions associated with it, Applications using this Project can deploy any resource, namespace or cluster
+that Argo CD itself has access to.
+
+[NOTE]
+Remember that Argo CD only has access to the Kubernetes resources that the `argocd-argocd-application-controller` ServiceAccount has been
+given access to in Kubernetes. So even though the Project may provide access to everything Argo CD is still potentially restricted
+by the Kubernetes permissions it has been granted,
+
+Since we don't want to use the `default` Project, we will create a new Project to deploy Applications
 
 In our Shared GitOps instance each workshop team, and thus user, has their own Project to manage access and restrictions for their Applications. To
 view your teams project, use the CLI to run the following command:

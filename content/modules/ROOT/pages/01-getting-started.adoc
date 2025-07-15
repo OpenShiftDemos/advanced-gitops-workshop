@@ -85,7 +85,7 @@ use the keyboard to paste content with the shortcut &lt;ctrl&gt;&lt;shift&gt;&lt
 ====
 
 [#argocd-login]
-== OpenShift GitOps Login
+== Argo CD Login
 
 While Argo CD generates a default `admin` user and a random password when first
 deployed you can also configure Argo CD to use the OpenShift authentication.
