@@ -268,11 +268,11 @@ section to add specific permissions to the `admin` role. Let's break
 down the first policy into it's constituent parts to understand how it is defined.
 
 [.console-output]
-[source,yaml,subs="attributes+,+macros"]
+[source,bash,subs="attributes+,+macros"]
 ----
-    policies:
-    - p   , proj:workshop:admin, applications, * , workshop/*, allow
-      <1>          <2>                <3>     <4>     <5>       <6>
+policies:
+- p   , proj:workshop:admin, applications, * , workshop/*, allow
+  <1>          <2>                <3>     <4>     <5>       <6>
 ----
 
 <1> The letter `p` indicates that a policy is being defined, this is how we assign
