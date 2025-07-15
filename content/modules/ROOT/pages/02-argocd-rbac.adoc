@@ -173,9 +173,8 @@ Since we don't want to use the `default` Project, we will create a new Project t
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/appproject.yaml | oc apply -n user{usernum}-argocd -f -
+sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/appproject.yaml | sed "s/%USERNUM%\//{usernum}\//" | oc apply -n user{usernum}-argocd -f -
 ----
-
 
 
 
