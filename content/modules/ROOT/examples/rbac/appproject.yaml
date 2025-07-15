@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: team%USERNUM%
+  name: workshop
   namespace: user%USERNUM%-argocd
 spec:
   description: Team%USERNUM%'s' Project
@@ -15,10 +15,10 @@ spec:
   sourceRepos:
   - https://github.com/OpenShiftDemos/advanced-gitops-workshop
   roles:
-    - description: user%USERNUM% Admins
+    - description: Team%USERNUM% Admins
       name: admin
       groups:
         - team%USERNUM%
       policies:
-        - p, proj:team%USERNUM%:admin, applications, *, team%USERNUM%/*, allow
-        - p, proj:team%USERNUM%:admin, exec, create, team%USERNUM%/*, allow
+        - p, proj:workshop:admin, applications, *, workshop/*, allow
+        - p, proj:workshop:admin, exec, create, workshop/*, allow
