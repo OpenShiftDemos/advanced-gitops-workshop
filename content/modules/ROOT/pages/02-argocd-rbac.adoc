@@ -192,18 +192,18 @@ metadata:
   name: workshop
   namespace: {user}-argocd
 spec:
-  clusterResourceBlacklist: (1)
+  clusterResourceBlacklist: <1>
   - group: '*'
     kind: '*'
-  description: Team2's' Project (2)
-  destinations: (3)
+  description: Team2's' Project <2>
+  destinations: <3>
   - namespace: {user}-dev
     server: https://kubernetes.default.svc
   - namespace: {user}-stage
     server: https://kubernetes.default.svc
   - namespace: {user}-prod
     server: https://kubernetes.default.svc
-  namespaceResourceBlacklist: (4)
+  namespaceResourceBlacklist: <4>
   - group: ""
     kind: ResourceQuota
   - group: ""
@@ -214,7 +214,7 @@ spec:
     kind: '*'
   - group: storage.k8s.io
     kind: '*'
-  roles: (5)
+  roles: <5>
   - description: Team{usernum} Admins
     groups:
     - team2
@@ -222,7 +222,7 @@ spec:
     policies:
     - p, proj:workshop:admin, applications, *, workshop/*, allow
     - p, proj:workshop:admin, exec, create, workshop/*, allow
-  sourceRepos: (6)
+  sourceRepos: <6>
   - https://github.com/OpenShiftDemos/advanced-gitops-workshop
   - https://github.com/gitops-examples/getting-started
 [.console-output]
