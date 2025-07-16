@@ -412,6 +412,7 @@ oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq . -P
       p, role:none, *, *, */*, deny
       g, system:cluster-admins, role:admin
       g, team{usernum}, role:admin
+    scopes: '[groups]'
 ----
 
 Notice a new group has been added to the policy section granting users in team{usernum} the `admin` role. The letter `p`
@@ -422,10 +423,19 @@ reviewed earlier. While `groups` is the most commonly set scope, having scopes l
 allows you to match roles to individual users. In a nutshell, when adding additional scopes, like `email`, these
 are treated as groups by Argo CD for matching purposes.
 
-
 We can also define our own policies here, as we can see with the new `role:none` that was added, if we need to define
 fine-grained permissions. We will look at the more later when talking about Argo CD Projects and RBAC but first we
 need to understand what an Argo CD Project is and why it is needed.
+
+Confirm that you can now see all Projects by going back to Settings > Projects:
+
+image::argocd-settings-project-all.png[]
+
+You can also check Settings > Cluster to see that you have access to the local cluster, `in-cluster`.
+
+[IMPORTANT]
+You now have full control over this Argo CD instance, do not delete or modify items without instructions as it
+could potentially break the workshop.
 
 [#rbac-conclusion]
 === Conclusion
@@ -433,3 +443,16 @@ need to understand what an Argo CD Project is and why it is needed.
 In this module we learned how Argo CD RBAC works and how to configure the RBAC at both the Global and Project scopes.
 We also learned how Argo CD Projects are configured, how they can be used to restrict what Applications can do
 and how to assign permissions to groups.
+
+Clean-up your work by deleting the Application:
+
+image::argocd-app-delete-button.png[]
+
+And then in the dialog type `bgd` as the name and click OK to delete the Application.
+
+image::argocd-app-delete-dialog.png[]
+
+[NOTE]
+Foreground and Background delete will remove all of the resources associated with the Application, Non-cascading will
+leave the resources in place. Non-cascading can be useful when you need to temporarily remove an Application for some
+reason such as restructuring Applications.
