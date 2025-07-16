@@ -256,16 +256,20 @@ Now let's focus on the RBAC defined in the `workshop` Project that we created:
   roles:
   - description: Team2 Admins
     groups:
-    - team2
-    name: admin
-    policies:
+    - team{usernum} <1>
+    name: admin <2>
+    policies: <3>
     - p, proj:workshop:admin, applications, *, workshop/*, allow
     - p, proj:workshop:admin, exec, create, workshop/*, allow
 ----
 
-Here we are defining a single role, `admin`, that is associated with the group `team2`. We use the policies
-section to add specific permissions to the `admin` role. Let's break
-down the first policy into it's constituent parts to understand how it is defined.
+Here we are defining a single role:
+
+<1> This role is linked to the group `team{usernum}` which your user is a member of.
+<2> The name of the role is `admin`, note that this role is scoped to this Project.
+<3> The policies, i.e permissions, that are applied by this role.
+
+Let's break down the first policy into it's constituent parts:
 
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
@@ -294,9 +298,31 @@ we have `workshop/*` which allows all Applications that belong to the `workshop`
 
 The second policy line with the `exec` permission enables usage of the terminal in the Argo CD user interface.
 
-Now let's try to create Application again.
+Now let's try to create Application again using the same steps as previously, it is the same Application yaml as previously
+but the project is changed from `default` to `workshop`
 
-
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bgd
+  namespace: {user}-argocd
+spec:
+  destination:
+    namespace: {user}-dev
+    server: https://kubernetes.default.svc
+  source:
+    path: bgd/base
+    repoURL: https://github.com/gitops-examples/getting-started
+    targetRevision: HEAD
+  project: workshop
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+----
 
 
 
