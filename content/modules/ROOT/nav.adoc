@@ -4,6 +4,11 @@
 ** xref:01-getting-started.adoc#gitops-architecture[OpenShift GitOps Architecture]
 
 * xref:02-argocd-rbac.adoc[2. Argo CD RBAC]
+** xref:02-argocd-rbac.adoc#rbac-introduction[Introduction]
+** xref:02-argocd-rbac.adoc#rbac-projects[Projects]
+** xref:02-argocd-rbac.adoc#rbac-project-rbac[Project RBAC]
+** xref:02-argocd-rbac.adoc#rbac-global[Global RBAC]
+** xref:02-argocd-rbac.adoc#rbac-conclusion[Conclusion]
 
 * xref:03-configuration.adoc[3. GitOps Configuration]
 
