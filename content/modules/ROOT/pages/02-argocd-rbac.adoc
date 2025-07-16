@@ -450,7 +450,7 @@ image::argocd-app-delete-button.png[]
 
 And then in the dialog type `bgd` as the name and click OK to delete the Application.
 
-image::argocd-app-delete-dialog.png[]
+image::argocd-app-delete-app-dialog.png[]
 
 [NOTE]
 Foreground and Background delete will remove all of the resources associated with the Application, Non-cascading will
