@@ -86,11 +86,36 @@ You can see the sync waves associated with each item by clicking the list icon i
 image::health-test-sync-wave.png[]
 
 Note that the `storage` PVS has a default sync wave of `-` which means `0`, whereas all other resources are set to a sync wave
-of `1`.
+of `1` so the PVC is applied first.
 
-[NOTE]
-In the real world there is no need for sync waves to handle late binding of PVCs, however we are doing so here for
-illustrative purposes to show the impact of health checks on behavior.
+This situation occurs because the default health check considers a PVC with a `Pending` status to be in the `Progressing` state. Let's
+correct this by overriding the health check to be considered `Healthy` when `Pending` with a custom health check. We will use the Argo CD
+Command Line Interface (CLI) to iteratively test our health check.
+
+First start by getting a local copy of the PVC manifest:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+cd ~
+oc get pvc storage -n {user}-dev -o yaml > pvc.yaml
+----
+
+Next get a copy of the Argo CD `ConfigMap` where the settings are stored:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+cd ~
+oc get configmap argocd-cm -n {user}-argocd -o yaml > argocd-cm.yaml
+----
+
+Finally use the Argo CD CLI to verify the current health check behavior:
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+argocd admin settings resource-overrides health pvc.yaml --argocd-cm-path ./argocd-cm.yaml
+----
 
 
 
