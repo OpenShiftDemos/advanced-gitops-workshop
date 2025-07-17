@@ -48,27 +48,8 @@ the link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: health-test
-  namespace: {user}-argocd
-spec:
-  destination:
-    namespace: {user}-dev
-    server: https://kubernetes.default.svc
-  source:
-    path: content/modules/ROOT/examples/health/bgd/base
-    repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop/
-    targetRevision: HEAD
-  project: workshop
-  syncPolicy:
-    automated:
-      prune: false
-      selfHeal: true
+sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/health/bgd/base | oc apply -f -
 ----
-
-
 
 == Argo CD CLI
 
