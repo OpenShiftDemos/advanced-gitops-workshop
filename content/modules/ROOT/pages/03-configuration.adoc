@@ -42,15 +42,55 @@ folder.
 3. _Custom_. These are health checks that you create yourself and configure in Argo CD. This can be done for resources that do not have a
 health check defined or used to override a Native or Included health check.
 
-To understand the importance of health checks, let's deploy the bgd Application again but this time for illustrative purposes with a PersistentVolumeClaim. Also there is a sync wave
-defined with the PVC being the first resource deployed. In the link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[Argo CD UI, window="_blank"]
-create a new Application as follows:
+To understand the importance of health checks, let's deploy the bgd Application again but this time with a PersistentVolumeClaim (PVC). Also there is a sync wave
+defined with the PVC being the first resource deployed.
+
+In the link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[Argo CD UI, window="_blank"] create a new Application as follows:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
 sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/health/application-bgd.yaml | oc apply -f -
 ----
+
+You should see a new Application tile called `health-test` appear but that this tile never gets synced as it is stuck in
+`Progressing`.
+
+image::health-test-tile-progressing.png[]
+
+Click on the `health-test` tile and note that the PVC seems to be stuck in `Progressing`.
+
+image::health-test-pvc-progressing.png[]
+
+Have a look at the status of the PVC in OpenShift:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc get pvc storage -n {user}-dev
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME      STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+storage   Pending                                      gp3-csi        <unset>                 6m52s
+----
+
+Notice the PVC is in a `Pending` state, this is because the storage class we are using is late binding. This means
+the PVC only shifts to the `Bound` state when it is mounted. Since we used a sync wave to apply the PVC first we can
+see that it is blocking other items from progressing.
+
+You can see the sync waves associated with each item by clicking the list icon in the upper right corner.
+
+image::health-test-sync-wave.png[]
+
+Note that the `storage` PVS has a default sync wave of `-` which means `0`, whereas all other resources are set to a sync wave
+of `1`.
+
+[NOTE]
+In the real world there is no need for sync waves to handle late binding of PVCs, however we are doing so here for
+illustrative purposes to show the impact of health checks on behavior.
 
 
 
