@@ -110,12 +110,28 @@ cd ~
 oc get configmap argocd-cm -n {user}-argocd -o yaml > argocd-cm.yaml
 ----
 
+[NOTE]
+Remember that the Argo CD Operator manages Argo CD configuration in the Argo CD CustomResource, the operator
+manages the `argocd-cm` ConfigMap and applies the settings from the operator automatically. If you install
+Argo CD with a Helm chart then the `argocd-cm` is managed directly.
+
 Finally use the Argo CD CLI to verify the current health check behavior:
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
 argocd admin settings resource-overrides health pvc.yaml --argocd-cm-path ./argocd-cm.yaml
 ----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+INFO[0000] Starting configmap/secret informers
+INFO[0000] Configmap/secret informer synced
+STATUS: Progressing
+MESSAGE
+----
+
+Note the command confirms that Argo CD considers the PVC to be `Progressing`, let's change that.
 
 
 
