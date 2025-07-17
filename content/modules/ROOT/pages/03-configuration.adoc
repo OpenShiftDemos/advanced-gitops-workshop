@@ -7,8 +7,14 @@ key options that advanced GitOps practitioners need to be aware of.
 == Argo CD Health Checks
 
 Argo CD has the ability to monitor the health of resources that it has deployed. When an Argo CD detects that a deployed Resource
-is in a non-Healthy state (Degrade, Progressing, etc) this is because the associated associated health check is providing
+is in a non-Healthy state (Degrade, Progressing, etc) this is because the associated health check is reporting
 this status.
+
+[IMPORTANT]
+Argo CD Health Checks provide a quick and easy way to monitor the status of resources being managed by Argo CD. If you deploy
+some additional alerting in your monitoring for Argo CD Applications you essentially get proactive resource monitoring alerting
+for free. OpenShift GitOps includes an an alert for the Out-of-Sync status, but you can view an example of additional
+alerting on health status link:https://github.com/gnunn-gitops/acm-hub-bootstrap/blob/main/components/policies/gitops/base/manifests/gitops-alerting/base/prometheus-rules.yaml[here,window="_blank"].
 
 These health statuses are also used to support features like link:https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves[Sync Waves, window="_blank"]
 which deploy resources in a prescribed order. Argo CD will not deploy subsequent resources until earlier resources are in a Healthy state as determined by
@@ -35,10 +41,6 @@ in the Argo CD repository in the link:https://github.com/argoproj/argo-cd/tree/m
 folder.
 3. _Custom_. These are health checks that you create yourself and configure in Argo CD. This can be done for resources that do not have a
 health check defined or used to override a Native or Included health check.
-
-
-
-
 
 
 == Argo CD CLI
