@@ -42,14 +42,17 @@ folder.
 3. _Custom_. These are health checks that you create yourself and configure in Argo CD. This can be done for resources that do not have a
 health check defined or used to override a Native or Included health check.
 
-To understand the importance of health checks, let's deploy the bgd Application again but this time with a PersistentVolumeClaim. In
-the link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[Argo CD UI, window="_blank"] create a new Application as follows:
+To understand the importance of health checks, let's deploy the bgd Application again but this time for illustrative purposes with a PersistentVolumeClaim. Also there is a sync wave
+defined with the PVC being the first resource deployed. In the link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[Argo CD UI, window="_blank"]
+create a new Application as follows:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
-sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/health/bgd/base | oc apply -f -
+sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/health/application-bgd.yaml | oc apply -f -
 ----
+
+
 
 == Argo CD CLI
 

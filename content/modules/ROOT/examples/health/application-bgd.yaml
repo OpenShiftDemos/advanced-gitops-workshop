@@ -9,7 +9,7 @@ spec:
     server: https://kubernetes.default.svc
   source:
     path: content/modules/ROOT/examples/health/bgd/base
-    repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop/
+    repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
     targetRevision: HEAD
   project: workshop
   syncPolicy:
