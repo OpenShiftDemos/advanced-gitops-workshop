@@ -30,8 +30,15 @@ spec:
           capabilities:
             drop:
             - ALL
+        volumeMounts:
+        - mountPath: /user_data/
+          name: storage
       securityContext:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+      volumes:
+      - name: storage
+          persistentVolumeClaim:
+            claimName: storage
 ---
