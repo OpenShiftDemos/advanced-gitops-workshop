@@ -2,7 +2,7 @@
 include::_attributes.adoc[]
 
 [#rbac-introduction]
-=== Introduction
+== Introduction
 
 In this module we will review and configure access to the provided Argo CD instance.
 
@@ -29,7 +29,7 @@ Roles and permissions can be defined in two places, globally and on a per Projec
 roles and permissions be defined in the Project and global roles be reserved for Argo CD administrators and managing
 globally scoped resources.
 
-=== Test Permissions
+== Test Permissions
 
 Let's confirm we do not have access to deploy Applications at the moment.
 
@@ -99,7 +99,7 @@ We could remediate the problem by defining permissions for the `team{usernum}` g
 approach by creating a new Argo CD Project with the needed permissions and then circle back to the Global RBAC.
 
 [#rbac-projects]
-=== Argo CD Projects
+== Argo CD Projects
 
 Argo CD link:https://argo-cd.readthedocs.io/en/stable/user-guide/projects/[Projects,window='_blank'] are used to group Applications together as well as manage
 permissions to the Applications and other Project scoped resources. Keep in mind that an Argo CD Project is different then an OpenShift Project despite using
@@ -243,7 +243,7 @@ Review the items defined by the `workshop` AppProject:
 Let's look at the roles that were defined in the next section.
 
 [#rbac-project-rbac]
-=== Argo CD Project RBAC
+== Argo CD Project RBAC
 
 Now let's focus on the RBAC defined in the `workshop` Project that we created:
 
@@ -342,7 +342,7 @@ This is because we have only granted permissions scoped to this Project, let's l
 how to configure it.
 
 [#rbac-global]
-=== Argo CD Global RBAC
+== Argo CD Global RBAC
 
 The global permissions for Argo CD are defined in the Argo CD Custom Resource (CR) when using the Argo CD Operator or OpenShift GitOps. If you are
 not using the operator then these global roles are defined in the `argocd-rbac-cm` ConfigMap.
@@ -438,7 +438,7 @@ You now have full control over this Argo CD instance, do not delete or modify it
 could potentially break the workshop.
 
 [#rbac-conclusion]
-=== Conclusion
+== Conclusion
 
 In this module we learned how Argo CD RBAC works and how to configure the RBAC at both the Global and Project scopes.
 We also learned how Argo CD Projects are configured, how they can be used to restrict what Applications can do
