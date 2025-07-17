@@ -1,6 +1,46 @@
 = GitOps Configuration
 include::_attributes.adoc[]
 
+Argo CD includes a very large number of configuration options, in this module we will review some of the
+key options that advanced GitOps practitioners need to be aware of.
+
+== Argo CD Health Checks
+
+Argo CD has the ability to monitor the health of resources that it has deployed. When an Argo CD detects that a deployed Resource
+is in a non-Healthy state (Degrade, Progressing, etc) this is because the associated associated health check is providing
+this status.
+
+These health statuses are also used to support features like link:https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves[Sync Waves, window="_blank"]
+which deploy resources in a prescribed order. Argo CD will not deploy subsequent resources until earlier resources are in a Healthy state as determined by
+the health check, *resources without a defined health check will be skipped once the manifest is applied*.
+
+Argo CD supports a number of health statuses as per the documentation:
+
+1. _Healthy_. Indicates a resource is in a good state, will automatically be used if no health check is available.
+2. _Suspended_. The resource is suspended and waiting for some external event to resume (e.g. suspended CronJob or paused Deployment)
+3. _Progressing_. The resource is not healthy yet but still making progress and might be healthy soon
+4. _Missing_. The resource is missing and not available.
+5. _Degraded_. The resource is degraded
+6. _Unknown_. The health of the resource could not be determined
+
+The health status of the resources are aggregated upwards to the Application with the status derived from the least healthy resource. Argo CD prioritizes
+these statuses of most to least healthy statuses: _Healthy_, _Suspended_, _Progressing_, _Missing_, _Degraded_, _Unknown_.
+
+Argo CD health checks are sourced from three locations:
+
+1. _Native_. These health checks are for standard Kubernetes resources (Deployment, Job, etc) are written in Go. They can
+be reviewed in the link:https://github.com/argoproj/gitops-engine/tree/master/pkg/health[gitops-engine, window="_blank"] repository.
+2. _Included_. These health checks are written in LUA and a large number of custom health checks ship with Argo CD, these can be reviewed
+in the Argo CD repository in the link:https://github.com/argoproj/argo-cd/tree/master/resource_customizations[resource_customizations,, window="_blank" ]
+folder.
+3. _Custom_. These are health checks that you create yourself and configure in Argo CD. This can be done for resources that do not have a
+health check defined or used to override a Native or Included health check.
+
+
+
+
+
+
 == Argo CD CLI
 
 We wil use the ArgoCD CLI to explore your GitOps environment in more detail. A secret has been pre-created in the `{user}-argocd`
