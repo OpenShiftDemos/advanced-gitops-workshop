@@ -415,7 +415,7 @@ oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq . -P
     scopes: '[groups]'
 ----
 
-Notice a new group has been added to the policy section granting users in team{usernum} the `admin` role. The letter `p`
+Notice a new group has been added to the policy section granting users in `team{usernum}` the `admin` role. The letter `p`
 is used to defined policies as we saw in the Project RBAC, here the letter `g` is used to assign a group to a role.
 
 Note that what is considered a `group` for matching purposes is controlled by the `scope` that was
