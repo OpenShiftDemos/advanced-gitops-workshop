@@ -335,7 +335,7 @@ Now let's check out Global permissions, click on Settings and then Projects:
 
 image::argocd-settings-project.png[]
 
-Note that we only see a single Project here, `workshop`, but not the `defaults` workshop. Similarly if you
+Note that we only see a single Project here, `workshop`, but not the `default`. Similarly if you
 go back to Settings and click on Clusters no clusters will be visible.
 
 This is because we have only granted permissions scoped to this Project, let's look at the Global RBAC and
