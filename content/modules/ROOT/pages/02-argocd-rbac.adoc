@@ -393,7 +393,7 @@ include::ROOT:example$rbac/argocd_rbac_patch.yaml[]
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/argocd_rbac_patch.yaml | kubectl patch -n user{usernum}-argocd argocd argocd --type=merge --patch-file=/dev/stdin
+sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/argocd_rbac_patch.yaml | oc patch -n user{usernum}-argocd argocd argocd --type=merge --patch-file=/dev/stdin
 ----
 
 Check the results of this patch by executing the previous command to fetch the RBAC:
@@ -415,7 +415,7 @@ oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq . -P
     scopes: '[groups]'
 ----
 
-Notice a new group has been added to the policy section granting users in `team{usernum}` the `admin` role. The letter `p`
+A new group has been added to the policy section granting users in `team{usernum}` the `admin` role. The letter `p`
 is used to defined policies as we saw in the Project RBAC, here the letter `g` is used to assign a group to a role.
 
 Note that what is considered a `group` for matching purposes is controlled by the `scope` that was
