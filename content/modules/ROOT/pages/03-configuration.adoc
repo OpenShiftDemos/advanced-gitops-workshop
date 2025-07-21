@@ -217,6 +217,16 @@ to take advantage of it:
 oc patch -n user{usernum}-argocd argocd argocd --type=merge --patch-file=~/workshop/content/modules/ROOT/examples/health/health-check-patch.yaml
 ----
 
+Go back Argo CD and press the `Refresh` button
+
+image::argocd-refresh.png[]
+
+In twenty to thirty seconds you should see the Refresh complete and the Application properly sync'ed.
+
+image::argocd-health-test-synced.png[]
+
+In this section we have reviewed how health checks work, why they are important and how to iteratively build and test them.
+
 == Argo CD CLI
 
 We wil use the ArgoCD CLI to explore your GitOps environment in more detail. A secret has been pre-created in the `{user}-argocd`
