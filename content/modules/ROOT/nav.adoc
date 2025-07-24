@@ -1,6 +1,7 @@
 * xref:01-getting-started.adoc[1. Getting Started]
 ** xref:01-getting-started.adoc#cluster-login[Cluster Login]
 ** xref:01-getting-started.adoc#argocd-login[Argo CD Login]
+** xref:01-getting-started.adoc#argocd-cli[Argo CD CLI]
 ** xref:01-getting-started.adoc#gitops-architecture[OpenShift GitOps Architecture]
 
 * xref:02-argocd-rbac.adoc[2. Argo CD RBAC]
@@ -11,6 +12,8 @@
 ** xref:02-argocd-rbac.adoc#rbac-conclusion[Conclusion]
 
 * xref:03-configuration.adoc[3. GitOps Configuration]
+** xref:03-configuration.adoc#config-introduction[Introduction]
+** xref:03-configuration.adoc#config-health-checks[Health Checks]
 
 * xref:04-applicationsets.adoc[4. ApplicatonSets]
 

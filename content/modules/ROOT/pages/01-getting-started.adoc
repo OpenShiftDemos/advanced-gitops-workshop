@@ -111,18 +111,22 @@ Web UI.
 
 image::argocd-login2.png[ArgoCDLogin2, 600]
 
-[#argocd-login]
+[#argocd-cli]
 == Argo CD CLI
 
 The Argo CD CLI enables users to interact with Argo CD via a command line. It is useful for both scripts
 and general usage. There are two ways to login into the CLI, the preferred way is to login using your Argo CD
-credential so that Argo CD RBAC is applied. The second way is to use the `--core` switch which logs in using
-the Kubernetes context.
+credential so that Argo CD RBAC is applied.
+
+The second way is to use the `--core` switch which logs in using the Kubernetes context. This can be useful as
+a fallback if for some reason the Argo CD CLI is not working as expected. Also link:https://argo-cd.readthedocs.io/en/stable/operator-manual/core[Argo CD Core, window="_blank"] is
+a lightweight version of Argo CD that does not include the Server component and thus no UI or API is
+available. In this case logging in with core mode is the only option.
 
 [NOTE]
 Normally when using Argo CD with OIDC the login would be done with using the `--sso` switch
 which starts up a local web server to handle the OIDC callback on localhost. However since
-our terminal is running in a pod in OpenShift this is not possible. There here we will
+our terminal is running in a pod in OpenShift this is not possible. Therefore here we will
 use the `--core` switch since you own the Argo CD instance and thus RBAC is not an issue.
 
 To login into Argo CD execute the following:

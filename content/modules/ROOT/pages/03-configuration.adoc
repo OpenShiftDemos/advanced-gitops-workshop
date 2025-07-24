@@ -5,6 +5,7 @@ Argo CD includes a very large number of configuration options, in this module we
 key options that advanced GitOps practitioners need to be aware of. However before we get started
 lets quickly review how Argo CD manages it's configuration and where it is stored.
 
+[#config-introduction]
 == Introduction
 
 If you install Argo CD with a Helm chart you will find that it stores the configuration in the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-cm-yaml/[argocd-cm, window="_blank]
@@ -82,6 +83,7 @@ Feel free to take a few moments to explore the configuration options available i
 The OpenShift GitOps operator is a downstream of the link:https://argocd-operator.readthedocs.io/en/latest[Argo CD Operator, window="_blank"] with a
 few additional capabilities specific to OpenShift.
 
+[#config-health-checks]
 == Argo CD Health Checks
 
 Argo CD has the ability to monitor the health of resources that it has deployed. When an Argo CD detects that a deployed Resource
