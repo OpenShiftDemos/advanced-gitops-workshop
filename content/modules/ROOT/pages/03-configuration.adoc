@@ -13,7 +13,7 @@ ConfigMap. Review this as follows:
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
-oc get configmap argocd-cm -n {user}-argocd
+oc get configmap argocd-cm -n {user}-argocd -o yaml | oc neat
 ----
 
 This ConfigMap has a number of fields but the bulk of the configuration is for Dex to authenticate to OpenShift.
@@ -65,6 +65,16 @@ oc explain argocd.spec.controller
 ----
 
 This shows the options available for managing the Argo CD Application Controller.
+
+The operator does not support all of the configuration options that can be made in the ConfigMap, just the
+most common ones. To address this the `extraConfig` field exists that enables directly setting Argo CD
+configuration and the operator will transpose them as is into the `argocd-cm` ConfigMap.
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc explain argocd.spec.extraConfig
+----
 
 Feel free to take a few moments to explore the configuration options available in the ArgoCD CR.
 
