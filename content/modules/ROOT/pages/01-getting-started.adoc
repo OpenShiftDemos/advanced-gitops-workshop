@@ -143,6 +143,10 @@ argocd login --core
 Context 'kubernetes' updated
 ----
 
+[NOTE]
+If you get an error about requiring `0400` or `0600` permissions you can
+correct it by executing `chmod 0600 .config/argocd/config`.
+
 Test your login with the following command to list projects:
 
 [.console-input]
