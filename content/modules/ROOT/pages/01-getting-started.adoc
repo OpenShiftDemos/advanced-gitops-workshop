@@ -111,6 +111,59 @@ Web UI.
 
 image::argocd-login2.png[ArgoCDLogin2, 600]
 
+[#argocd-login]
+== Argo CD CLI
+
+The Argo CD CLI enables users to interact with Argo CD via a command line. It is useful for both scripts
+and general usage. There are two ways to login into the CLI, the preferred way is to login using your Argo CD
+credential so that Argo CD RBAC is applied. The second way is to use the `--core` switch which logs in using
+the Kubernetes context.
+
+[NOTE]
+Normally when using Argo CD with OIDC the login would be done with using the `--sso` switch
+which starts up a local web server to handle the OIDC callback on localhost. However since
+our terminal is running in a pod in OpenShift this is not possible. There here we will
+use the `--core` switch since you own the Argo CD instance and thus RBAC is not an issue.
+
+To login into Argo CD execute the following:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd login --core
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+Context 'kubernetes' updated
+----
+
+Test your login with the following command to list projects:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd proj list
+----
+
+You should see that a single Project, `default` is available:
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME      DESCRIPTION       DESTINATIONS    SOURCES  CLUSTER-RESOURCE-WHITELIST  NAMESPACE-RESOURCE-BLACKLIST  SIGNATURE-KEYS  ORPHANED-RESOURCES  DESTINATION-SERVICE-ACCOUNTS
+default                     *,*             *        */*                         <none>                        <none>          disabled            <none>
+----
+
+The Argo CD CLI supports a variety of commands, these can be viewed with the `--help` command.
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd --help
+----
+
 [#gitops-architecture]
 == OpenShift GitOps Architecture
 
