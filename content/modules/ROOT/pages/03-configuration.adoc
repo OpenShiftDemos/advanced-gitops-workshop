@@ -2,7 +2,75 @@
 include::_attributes.adoc[]
 
 Argo CD includes a very large number of configuration options, in this module we will review some of the
-key options that advanced GitOps practitioners need to be aware of.
+key options that advanced GitOps practitioners need to be aware of. However before we get started
+lets quickly review how Argo CD manages it's configuration and where it is stored.
+
+== Introduction
+
+If you install Argo CD with a Helm chart you will find that it stores the configuration in the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-cm-yaml/[argocd-cm, window="_blank]
+ConfigMap. Review this as follows:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc get configmap argocd-cm -n {user}-argocd
+----
+
+This ConfigMap has a number of fields but the bulk of the configuration is for Dex to authenticate to OpenShift.
+
+With the Helm chart you could edit the ConfigMap directly but here you cannot because it is operator managed as we installed
+Argo CD with the OpenShift GitOps operator. Any changes that are made directly to the ConfigMap will be automatically reverted
+by the operator. You can see this is the case by noting the ConfigMap is owned by the operator:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc get configmap argocd-cm -n {user}-argocd -o=jsonpath="{.metadata.ownerReferences}" | yq . -P
+----
+
+[.console-output]
+[source,yaml,subs="attributes+,+macros"]
+----
+- apiVersion: argoproj.io/v1beta1
+  blockOwnerDeletion: true
+  controller: true
+  kind: ArgoCD
+  name: argocd
+  uid: 240eb945-806b-46af-93f2-a505685e1e99
+----
+
+As indicated here, the ConfigMap is being rendered by the Operator based on the ArgoCD Custom Resource (CR).
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc get argocd argocd -n {user}-argocd -o yaml | oc neat
+----
+
+One of the benefits the Operator provides is a schema based approach to configuation that is supported
+the Kubernetes `explain` command. Here are a couple of examples for you to try:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc explain argocd.spec.sso.dex
+----
+
+This will show the options available for Dex that we saw in the ConfigMap.
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc explain argocd.spec.controller
+----
+
+This shows the options available for managing the Argo CD Application Controller.
+
+Feel free to take a few moments to explore the configuration options available in the ArgoCD CR.
+
+[NOTE]
+The OpenShift GitOps operator is a downstream of the link:https://argocd-operator.readthedocs.io/en/latest[Argo CD Operator, window="_blank"] with a
+few additional capabilities specific to OpenShift.
 
 == Argo CD Health Checks
 
