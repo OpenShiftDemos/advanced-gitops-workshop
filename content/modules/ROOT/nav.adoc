@@ -14,7 +14,7 @@
 * xref:03-configuration.adoc[3. GitOps Configuration]
 ** xref:03-configuration.adoc#config-introduction[Introduction]
 ** xref:03-configuration.adoc#config-health-checks[Health Checks]
-** xref:03-configuration.adoc#enable-appsets[Enable Application Sets]
+** xref:03-configuration.adoc#enable-appset[Enable Application Sets]
 
 * xref:04-applicationsets.adoc[4. ApplicatonSets]
 

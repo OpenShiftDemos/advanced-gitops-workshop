@@ -349,7 +349,7 @@ by running `oc explain argocd.spec.applicationSet`.
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
-oc patch -n user{usernum}-argocd argocd argocd --type=merge --patch-file=/home/lab-user/workshop/content/modules/ROOT/examples/enable-applicationset/enable-applicationset-patch.yaml
+oc patch -n {user}-argocd argocd argocd --type=merge --patch-file=/home/lab-user/workshop/content/modules/ROOT/examples/enable-applicationset/enable-applicationset-patch.yaml
 ----
 
 Confirm the ApplicationSet deployment has been added.
@@ -359,4 +359,62 @@ Confirm the ApplicationSet deployment has been added.
 ----
 oc get deployments -n {user}-argocd
 ----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+argocd-applicationset-controller   1/1     1            1           23s
+argocd-dex-server                  1/1     1            1           5h1m
+argocd-redis                       1/1     1            1           5h1m
+argocd-repo-server                 1/1     1            1           5h1m
+argocd-server                      1/1     1            1           5h1m
+----
+
+The `applicationset-controller` has now been deployed.
+
+[#enable-terminal]
+== Enabling Terminal
+
+The Argo CD user interface, when viewing a pod, can optionally show a link:https://argo-cd.readthedocs.io/en/latest/operator-manual/web_based_terminal/[terminal, window="_blank"]
+tab similar to what you see in the OpenShift console. This can be useful for Organizations which use the Argo CD UI
+as a means for managing kubernetes resources.
+
+By default this is not enabled, in the health application that was deployed previously click on the
+pod. 
+
+image::argocd-select-pod.png[]
+
+Note that the only tabs available are `SUMMARY`, `EVENTS` and `LOGS`.
+
+image::argocd-pod-tabs.png[]
+
+As mentioned previously, not all Argo CD settings are defined in the ArgoCD Custom Resource. For cases
+where a setting is not defined, we can use the `extraConfig` to have the operator add these items 
+directly to the `argocd-cm` ConfigMap. Whatever is defined, correctly or incorrectly, will be copied
+to this configmap so some care should be taken when using this feature.
+
+[IMPORTANT]
+Before using `extraConfig`, you should always validate the option you want to set is not in fact
+available in the Operator. Also never edit the `argocd-cm` ConfigMap directly, the operator will
+revert any manual changes.
+
+Review the patch that we are going to apply:
+
+[source,yaml,subs="+macros,attributes+"]
+----
+include::ROOT:example$pod-exec/enable-terminal-patch.yaml[]
+----
+
+Apply the patch:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc patch -n {user}-argocd argocd argocd --type=merge --patch-file=/home/lab-user/workshop/content/modules/ROOT/examples/pod-exec/enable-terminal-patch.yaml
+----
+
+Verify that you can now see the terminal tab for the pod resource:
+
+
 
