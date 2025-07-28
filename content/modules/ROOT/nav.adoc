@@ -15,6 +15,8 @@
 ** xref:03-configuration.adoc#config-introduction[Introduction]
 ** xref:03-configuration.adoc#config-health-checks[Health Checks]
 ** xref:03-configuration.adoc#enable-appset[Enable Application Sets]
+** xref:03-configuration.adoc#enable-terminal[Enable Terminal]
+** xref:03-configuration.adoc#config-conclusion[Conclusion]
 
 * xref:04-applicationsets.adoc[4. ApplicatonSets]
 

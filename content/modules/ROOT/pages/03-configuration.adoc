@@ -416,9 +416,17 @@ oc patch -n {user}-argocd argocd argocd --type=merge --patch-file=/home/lab-user
 
 Verify that you can now see the terminal tab for the pod resource:
 
-
+image::argocd-terminal.png[]
 
 [IMPORTANT]
 As per the Argo CD Documentation, the `argocd-server` ServiceAccount must be granted additional permissions with Kubernetes RBAC
 to enable the terminal. These permissions have already been applied by specifying a custom ClusterRole for the GitOps Operator. 
+
+[#config-conclusion]
+== Conclusion
+
+In this module we have learned how to configure Argo CD, the importance of health checks and handling
+configuration options not available in the Operator.
+
+Clean-up your work by deleting the `health-test` Application using the default `Foreground` deletion option.
 
