@@ -294,7 +294,7 @@ to take advantage of it:
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
-oc patch -n user{usernum}-argocd argocd argocd --type=merge --patch-file=~/workshop/content/modules/ROOT/examples/health/health-check-patch.yaml
+oc patch -n user{usernum}-argocd argocd argocd --type=merge --patch-file=/home/lab-user/workshop/content/modules/ROOT/examples/health/health-check-patch.yaml
 ----
 
 Go back Argo CD and press the `Refresh` button
@@ -306,3 +306,57 @@ In twenty to thirty seconds you should see the Refresh complete and the Applicat
 image::argocd-health-test-synced.png[]
 
 In this section we have reviewed how health checks work, why they are important and how to iteratively build and test them.
+
+[#enable-appset]
+== Enabling ApplicationSets
+
+By default the OpenShift GitOps operator does not enable ApplicationSets, confirm by reviewing
+the existing deployments in the `{user}-argocd` namespace.
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc get deployments -n {user}-argocd
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+argocd-dex-server    1/1     1            1           4h34m
+argocd-redis         1/1     1            1           4h34m
+argocd-repo-server   1/1     1            1           4h34m
+argocd-server        1/1     1            1           4h34m
+----
+
+Note the absence of an applicationset-controller.
+
+[NOTE]
+You may be wondering why there is no `application-controller` Deployment as per our earlier architecture section. This
+is because the `application-controller` is deployed as a StatefulSet rather then a Deployment.
+
+To enable ApplicationSets we will apply the following patch to the ArgoCD CR:
+
+[source,yaml,subs="+macros,attributes+"]
+----
+include::ROOT:example$enable-applicationset/enable-applicationset-patch.yaml[]
+----
+
+[NOTE]
+There are more configuraton options available then just `enabled`, feel free to explore them
+by running `oc explain argocd.spec.applicationSet`.
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc patch -n user{usernum}-argocd argocd argocd --type=merge --patch-file=/home/lab-user/workshop/content/modules/ROOT/examples/enable-applicationset/enable-applicationset-patch.yaml
+----
+
+Confirm the ApplicationSet deployment has been added.
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc get deployments -n {user}-argocd
+----
+
