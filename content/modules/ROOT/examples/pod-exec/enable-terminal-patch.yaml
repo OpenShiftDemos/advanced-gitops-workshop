@@ -1,2 +1,3 @@
-  extraConfig:
-    exec.enabled: "true"
+  spec:
+    extraConfig:
+      exec.enabled: "true"

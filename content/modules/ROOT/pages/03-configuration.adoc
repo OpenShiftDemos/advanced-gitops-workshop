@@ -418,3 +418,7 @@ Verify that you can now see the terminal tab for the pod resource:
 
 
 
+[IMPORTANT]
+As per the Argo CD Documentation, the `argocd-server` ServiceAccount must be granted additional permissions with Kubernetes RBAC
+to enable the terminal. These permissions have already been applied by specifying a custom ClusterRole for the GitOps Operator. 
+
