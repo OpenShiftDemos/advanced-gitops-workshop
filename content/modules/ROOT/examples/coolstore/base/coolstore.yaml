@@ -216,7 +216,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: catalog-database
-      app.kubernetes.io/part-of: globex-app
+      app.kubernetes.io/part-of: coolstore
   template:
     metadata:
       creationTimestamp: null
