@@ -1,0 +1,4 @@
+resources:
+- coolstore-dev.yaml
+- coolstore-stage.yaml
+- coolstore-prod.yaml
