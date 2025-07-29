@@ -26,6 +26,8 @@ spec:
     server: https://kubernetes.default.svc
   - namespace: user%USERNUM%-prod
     server: https://kubernetes.default.svc
+  - namespace: user%USERNUM%-argocd
+    server: https://kubernetes.default.svc
   sourceRepos:
   - https://github.com/OpenShiftDemos/advanced-gitops-workshop
   - https://github.com/gitops-examples/getting-started
