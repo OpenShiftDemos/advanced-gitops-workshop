@@ -79,7 +79,7 @@ granted permissions:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
- oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq . -P
+oc get argocd argocd -n {user}-argocd -o=jsonpath="{.spec.rbac}" | yq . -P
 ----
 
 [.console-output]

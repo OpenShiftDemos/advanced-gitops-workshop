@@ -1,21 +1,8 @@
 = ApplicationSets
 include::_attributes.adoc[]
 
-With Argo CD there are often situations where you want to deploy or generate multiple versions of the same Application with variations. These variations can be static,
-i.e. a basic list of differing elements, or dynamic based on external inputs such as git repositories.
-
-This is where the Argo CD link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset[ApplicationSet,window="_blank"] feature
-comes into play. ApplicationSets enables you to generate Application resources using templating. Each ApplicationSet can include one or
-more generators that power the creation of Applications. Argo CD currently includes many different generators and enables users to create custom generators via a Plugin architecture.
-
-There are a number of link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators[generators,window="_blank"] available, some common examples of these generators include:
-
-* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-List[List,window="_blank"] generator for generating applications for different environments. We will look at an example of this shortly
-* Leveraging the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/[git,window="_blank"] generator to create Applications based on the contents of a git repo, we will look at this in Module 4 as a more dynamic way to generate apps for environments.
-* Using the https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/[Pull Request,window="_blank"] generator to provision new environments on the fly to run automated tests before merging the code.
-* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Cluster/[Cluster,window="_blank"] generator to provision an Application across multiple clusters.
-* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Matrix[Matrix,window="_blank"]
-and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Merge[Merge,window="_blank"] to combine the results from multiple generators.
+In this module you will learn how to deploy multiple applications from a single Application using the App-of-Apps pattern
+and the newer ApplicationSets in Argo CD.
 
 [#apps-of-apps]
 == App-of-Apps
@@ -79,6 +66,51 @@ sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/app-of-apps/cool
 ----
 application.argoproj.io/coolstore created
 ----
+
+Go to the Argo CD UI, notice that we have four Applications deployed. These include the `coolstore` App-of-Apps as well as the
+three environment Applications that were deployed by `coolstore`.
+
+image::app-of-apps-tiles.png[]
+
+Click on the `coolstore` tile, notice that it has three resources that it deployed which were the environment Applications.
+
+image::app-of-apps-resources.png[]
+
+Now let's clean-up the Applications however before we do so, have a closer look at the `coolstore` App-of-Apps we deployed:
+[.console-output]
+[source,yaml,subs="attributes+,+macros"]
+----
+include::ROOT:example$app-of-apps/coolstore-app-of-apps.yaml[]
+----
+
+Notice there is a finalizer defined, this is required if you want the Application to delete the resources it deployed when
+using the App-of-Apps pattern as per the link:https://argo-cd.readthedocs.io/en/latest/user-guide/app_deletion/#about-the-deletion-finalizer[documentation, window="_blank"].
+
+[NOTE]
+The kustomize section is used to transform the destination for the Application for your specific user. This is only needed
+here as all users are using the same repository, typically this would not be required.
+
+In this section we have seen how we can use App-of-Apps to deploy multiple Applications stored in git. However this list of 
+Applications is static, what if we want to create Applications dynamically based on external sources? This is where
+ApplicationSets come into play.
+
+== ApplicationSets
+
+As we just mentioned, there are often situations where you want to deploy or generate multiple versions of the same Application with variations. These variations can be static,
+i.e. a basic list of differing elements, or dynamic based on external inputs such as git repositories.
+
+This is where the Argo CD link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset[ApplicationSet,window="_blank"] feature
+comes into play. ApplicationSets enables you to generate Application resources using templating. Each ApplicationSet can include one or
+more generators that power the creation of Applications. Argo CD currently includes many different generators and enables users to create custom generators via a Plugin architecture.
+
+There are a number of link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators[generators,window="_blank"] available, some common examples of these generators include:
+
+* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-List[List,window="_blank"] generator for generating applications for different environments. We will look at an example of this shortly
+* Leveraging the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/[git,window="_blank"] generator to create Applications based on the contents of a git repo, we will look at this in Module 4 as a more dynamic way to generate apps for environments.
+* Using the https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/[Pull Request,window="_blank"] generator to provision new environments on the fly to run automated tests before merging the code.
+* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Cluster/[Cluster,window="_blank"] generator to provision an Application across multiple clusters.
+* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Matrix[Matrix,window="_blank"]
+and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Merge[Merge,window="_blank"] to combine the results from multiple generators.
 
 == Static Generation with List Generator
 
