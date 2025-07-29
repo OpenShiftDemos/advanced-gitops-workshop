@@ -17,6 +17,45 @@ There are a number of link:https://argo-cd.readthedocs.io/en/stable/operator-man
 * Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Matrix[Matrix,window="_blank"]
 and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Merge[Merge,window="_blank"] to combine the results from multiple generators.
 
+[#apps-of-apps]
+== App-of-Apps
+
+Before we delve into ApplicatioSets, let's dive into the useful link:link:https://argo-cd.readthedocs.io/en/latest/operator-manual/cluster-bootstrapping/#app-of-apps-pattern[App-of-Apps, window="_blank"] 
+pattern which predates ApplicationSets. 
+
+The concept of App-of-Apps is that you have an Application in Argo CD that points to a location that consists only of Applications. This enables bootstrapping a set of 
+Applications from a single Application and is useful in use cases such as cluster configuration and multiple environments.
+
+Before we can deploy the App-of-Apps, we first need to deploy a health check for the Application resource which is not included as an included health check in Argo CD at this time. 
+
+[NOTE]
+This is because in Argo CD 1.x the default Application health check was removed, the author of this workshop link:https://github.com/argoproj/argo-cd/issues/16870[disagrees, window="_blank"] with
+that decision but unfortunately this is the current state.
+
+To add the Application Health check use the following command:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+oc patch -n {user}-argocd argocd argocd --type=merge --patch-file=/home/lab-user/workshop/content/modules/ROOT/examples/app-of-apps/application-health-patch.yaml
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+
+----
+
+Next deploy the app-of-apps Application:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/app-of-apps/coolstore-app-of-apps.yaml | oc apply -f -
+----
+
+
+
 == Static Generation with List Generator
 
 Let's look at a simple example of an Application that uses a List generator to create the development and production Applications

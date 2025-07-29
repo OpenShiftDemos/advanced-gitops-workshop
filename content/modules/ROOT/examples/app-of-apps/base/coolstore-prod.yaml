@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: coolstore-prod
+  finalizers:
+    # The default behaviour is foreground cascading deletion
+    - resources-finalizer.argocd.argoproj.io  
+spec:
+  destination:
+    namespace: userx-prod
+    name: in-cluster
+  project: workshop
+  source:
+    path: content/modules/ROOT/examples/coolstore/base
+    repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
