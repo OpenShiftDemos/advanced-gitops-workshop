@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: coolstore
+  namespace: %USER%-argocd
   finalizers:
     # The default behaviour is foreground cascading deletion
     - resources-finalizer.argocd.argoproj.io  
@@ -17,23 +18,23 @@ spec:
     kustomize:
       patches:
         - patch: |-
-          - op: replace
-            path: /spec/destination/namespace
-            value: %USER%-dev
+            - op: replace
+              path: /spec/destination/namespace
+              value: %USER%-dev
           target:
             kind: Application
             name: coolstore-dev
         - patch: |-
-          - op: replace
-            path: /spec/destination/namespace
-            value: %USER%-stage
+            - op: replace
+              path: /spec/destination/namespace
+              value: %USER%-stage
           target:
             kind: Application
             name: coolstore-stage
         - patch: |-
-          - op: replace
-            path: /spec/destination/namespace
-            value: %USER%-prod
+            - op: replace
+              path: /spec/destination/namespace
+              value: %USER%-prod
           target:
             kind: Application
             name: coolstore-prod

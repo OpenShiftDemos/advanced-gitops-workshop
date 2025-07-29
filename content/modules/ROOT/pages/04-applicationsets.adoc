@@ -20,7 +20,7 @@ and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset
 [#apps-of-apps]
 == App-of-Apps
 
-Before we delve into ApplicatioSets, let's dive into the useful link:link:https://argo-cd.readthedocs.io/en/latest/operator-manual/cluster-bootstrapping/#app-of-apps-pattern[App-of-Apps, window="_blank"] 
+Before we delve into ApplicatioSets, let's dive into the useful link:https://argo-cd.readthedocs.io/en/latest/operator-manual/cluster-bootstrapping/#app-of-apps-pattern[App-of-Apps, window="_blank"] 
 pattern which predates ApplicationSets. 
 
 The concept of App-of-Apps is that you have an Application in Argo CD that points to a location that consists only of Applications. This enables bootstrapping a set of 
@@ -43,15 +43,35 @@ oc patch -n {user}-argocd argocd argocd --type=merge --patch-file=/home/lab-user
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-
+argocd.argoproj.io/argocd patched
 ----
 
-Next deploy the app-of-apps Application:
+Next review the applications that the App-of-Apps will be deploying:
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+ls -l ~/workshop/content/modules/ROOT/examples/app-of-apps/base/
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+total 12
+-rw-r--r--. 1 lab-user 1001040000 525 Jul 29 21:54 coolstore-dev.yaml
+-rw-r--r--. 1 lab-user 1001040000 527 Jul 29 21:54 coolstore-prod.yaml
+-rw-r--r--. 1 lab-user 1001040000 529 Jul 29 21:54 coolstore-stage.yaml
+-rw-r--r--. 1 lab-user 1001040000   0 Jul 29 21:54 kustomization.yaml
+----
+
+There are three Applications defined, one for each environment, with kustomize being used to manage them.
+
+Proceed to deploy the app-of-apps Application:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
-sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/app-of-apps/coolstore-app-of-apps.yaml | oc apply -f -
+sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/app-of-apps/coolstore-app-of-apps.yaml | oc apply -n {user}-argocd -f -
 ----
 
 
