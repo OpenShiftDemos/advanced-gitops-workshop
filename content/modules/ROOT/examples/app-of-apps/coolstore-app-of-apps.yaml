@@ -4,8 +4,7 @@ metadata:
   name: coolstore
   namespace: %USER%-argocd
   finalizers:
-    # The default behaviour is foreground cascading deletion
-    - resources-finalizer.argocd.argoproj.io  
+    - resources-finalizer.argocd.argoproj.io/foreground 
 spec:
   destination:
     namespace: %USER%-argocd
@@ -13,7 +12,7 @@ spec:
   project: workshop
   source:
     path: content/modules/ROOT/examples/app-of-apps/base
-    repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop.git
+    repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
     targetRevision: HEAD
     kustomize:
       patches:

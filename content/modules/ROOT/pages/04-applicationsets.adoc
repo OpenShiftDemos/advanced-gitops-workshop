@@ -74,7 +74,11 @@ Proceed to deploy the app-of-apps Application:
 sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/app-of-apps/coolstore-app-of-apps.yaml | oc apply -n {user}-argocd -f -
 ----
 
-
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+application.argoproj.io/coolstore created
+----
 
 == Static Generation with List Generator
 
