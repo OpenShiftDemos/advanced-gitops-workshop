@@ -96,10 +96,10 @@ ApplicationSets come into play.
 
 == ApplicationSets
 
-As we just mentioned, there are often situations where you want to deploy or generate multiple versions of the same Application with variations. These variations can be static,
+As we saw previously, there are often situations where you want to deploy or generate multiple versions of the same Application with variations. These variations can be static,
 i.e. a basic list of differing elements, or dynamic based on external inputs such as git repositories.
 
-This is where the Argo CD link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset[ApplicationSet,window="_blank"] feature
+This is where the Argo CD link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset[ApplicationSet,window="_blank"] feature, particularly for the dynamic use case,
 comes into play. ApplicationSets enables you to generate Application resources using templating. Each ApplicationSet can include one or
 more generators that power the creation of Applications. Argo CD currently includes many different generators and enables users to create custom generators via a Plugin architecture.
 
@@ -114,8 +114,9 @@ and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset
 
 == Static Generation with List Generator
 
-Let's look at a simple example of an Application that uses a List generator to create the development and production Applications
-for the `coolstore-app` Application we deployed earlier.
+Let's look at a simple example of an Application that uses a List generator to create Applications for different environments
+for the `coolstore` Application we deployed earlier. This will be a similar use case to what we saw with App-of-Apps but done
+with ApplicationSets.
 
 Deploy the ApplicationSet using the following command:
 

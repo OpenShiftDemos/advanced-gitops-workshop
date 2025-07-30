@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: coolstore
+  namespace: $USER-argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - list:
+      elements:
+      - environment: dev
+      - environment: stage
+      - environment: prod
+  template:
+    metadata:
+      name: coolstore-app-{{.environment}}
+      namespace: $USER-argocd
+    spec:
+      destination:
+        namespace: $USER-{{.environment}}
+        name: in-cluster
+      project: $USER
+      source:
+        path:  add content/modules/ROOT/examples/coolstore/overlays/{{.environment}}
+        repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
+        targetRevision: HEAD
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

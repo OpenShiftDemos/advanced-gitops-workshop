@@ -11,7 +11,7 @@ spec:
     name: in-cluster
   project: workshop
   source:
-    path: content/modules/ROOT/examples/coolstore/base
+    path: content/modules/ROOT/examples/coolstore/overlays/prod
     repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop.git
     targetRevision: HEAD
   syncPolicy:
