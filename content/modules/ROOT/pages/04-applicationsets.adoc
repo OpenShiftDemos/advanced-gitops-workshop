@@ -198,6 +198,10 @@ generate applications, basically it is 1:1 per element
 <4> The `template` section is where we define the Application resource that the ApplicationSet will create
 <5> Here is an example of referencing the `environment` value to template the name.
 
+Confirm the three Applications, one for each environment, were created:
+
+image::appset-apps-tiles.png[]
+
 When the ApplicationSet generates the Applications it assumes ownership of them, validate this with the following:
 
 [.console-input]
@@ -225,6 +229,14 @@ oc get app coolstore-app-dev -o=jsonpath='{.metadata.ownerReferences}' -n {user}
 
 As we can see ApplicationSets provide an easy way to generate Application objects statically but now let's have a look
 where they really shine, dynamic generation based on external sources.
+
+Delete the ApplicationSet before continuting to the next section:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+oc delete appset coolstore -n {user}-argocd
+----
 
 == Dynamic Generation with git Generator
 
