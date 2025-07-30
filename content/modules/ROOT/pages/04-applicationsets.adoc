@@ -141,7 +141,7 @@ Deploy the ApplicationSet using the following command:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-list-appset.yaml | sed 's/$SUBDOMAIN/{subdomain}/' | oc apply -f - -n {user}-argocd
+sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-list-appset.yaml | oc apply -n {user}-argocd -f - 
 ----
 
 Next have a look at the ApplicationSet that was deployed with this command:

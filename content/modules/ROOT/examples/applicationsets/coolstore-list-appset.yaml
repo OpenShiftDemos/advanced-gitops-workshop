@@ -22,7 +22,7 @@ spec:
       destination:
         namespace: $USER-{{.environment}}
         name: in-cluster
-      project: $USER
+      project: workshop
       source:
         path:  content/modules/ROOT/examples/coolstore/overlays/{{.environment}}
         repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
