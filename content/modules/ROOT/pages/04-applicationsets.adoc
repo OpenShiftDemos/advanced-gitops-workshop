@@ -180,7 +180,7 @@ spec:
       destination:
         name: in-cluster
         namespace: {user}-{{.environment}}
-      project: {user}
+      project: workshop
       source:
         path: content/modules/ROOT/examples/coolstore/overlays/{{.environment}}
         repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
@@ -207,7 +207,7 @@ When the ApplicationSet generates the Applications it assumes ownership of them,
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-oc get app coolstore-app-dev -o=jsonpath='{.metadata.ownerReferences}' -n {user}-argocd | jq -s .
+oc get app coolstore-dev -o=jsonpath='{.metadata.ownerReferences}' -n {user}-argocd | jq -s .
 ----
 
 [.console-output]
@@ -238,14 +238,33 @@ Delete the ApplicationSet before continuting to the next section:
 oc delete appset coolstore -n {user}-argocd
 ----
 
+[NOTE]
+It may take a minute or two for it to delete as it deletes the entire chain of applications and resources, be patient.
+
 == Dynamic Generation with git Generator
 
-A common pattern when deploying an application to multiple environments is to have a repository that contains the following structure:
+A common pattern when deploying an application with kustomize with multiple environments is to have a repository that contains the following structure:
 
 * *base*: the common assets that we want to deploy
 * *overlays*:
     ** *dev*: specific values that will override the ones in the base for the "dev" environment
+    ** *stage*: specific values that will override the ones in the base for the "stage" environment
     ** *prod*: specific values that will override the ones in the base for the "prod" environment
+
+You can view this structure in your cloned repository:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+tree ~/workshop/content/modules/ROOT/examples/coolstore
+----
+
+[.console-output]
+[source,yaml,subs="attributes+,+macros"]
+----
+
+----
+
 
 Let's deploy these applications using an ApplicationSet as we did previously but this time we will use a git generator.
 

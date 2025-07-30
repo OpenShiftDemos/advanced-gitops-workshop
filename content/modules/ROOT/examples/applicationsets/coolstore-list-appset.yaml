@@ -4,7 +4,7 @@ metadata:
   name: coolstore
   namespace: $USER-argocd
   finalizers:
-    - resources-finalizer.argocd.argoproj.io/background
+    - resources-finalizer.argocd.argoproj.io/foreground
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
