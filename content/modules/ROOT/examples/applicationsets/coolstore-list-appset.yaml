@@ -16,7 +16,7 @@ spec:
       - environment: prod
   template:
     metadata:
-      name: coolstore-app-{{.environment}}
+      name: coolstore-{{.environment}}
       namespace: $USER-argocd
     spec:
       destination:
@@ -24,7 +24,7 @@ spec:
         name: in-cluster
       project: $USER
       source:
-        path:  add content/modules/ROOT/examples/coolstore/overlays/{{.environment}}
+        path:  content/modules/ROOT/examples/coolstore/overlays/{{.environment}}
         repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
         targetRevision: HEAD
       syncPolicy:

@@ -107,7 +107,7 @@ Delete the Application:
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
-delete app coolstore -n {user}-argocd
+oc delete app coolstore -n {user}-argocd
 ----
 
 Wait for all of the Applications to be removed from the Argo CD UI.
@@ -121,7 +121,7 @@ This is where the Argo CD link:https://argo-cd.readthedocs.io/en/stable/operator
 comes into play. ApplicationSets enables you to generate Application resources using templating. Each ApplicationSet can include one or
 more generators that power the creation of Applications. Argo CD currently includes many different generators and enables users to create custom generators via a Plugin architecture.
 
-There are a number of link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators[generators,window="_blank"] available, some common examples of these generators include:
+Some common examples of these link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators[generators,window="_blank"] include:
 
 * Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-List[List,window="_blank"] generator for generating applications for different environments. We will look at an example of this shortly
 * Leveraging the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/[git,window="_blank"] generator to create Applications based on the contents of a git repo, we will look at this in Module 4 as a more dynamic way to generate apps for environments.
@@ -133,7 +133,7 @@ and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset
 == Static Generation with List Generator
 
 Let's look at a simple example of an Application that uses a List generator to create Applications for different environments
-for the `coolstore` Application we deployed earlier. This will be a similar use case to what we saw with App-of-Apps but done
+for the `coolstore` Application. This will be a similar use case to what we saw with App-of-Apps but done
 with ApplicationSets.
 
 Deploy the ApplicationSet using the following command:
@@ -141,7 +141,7 @@ Deploy the ApplicationSet using the following command:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/coolstore-gitops-appset.yaml | sed 's/$SUBDOMAIN/{subdomain}/' | oc apply -f - -n {user}-argocd
+sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-list-appset.yaml | sed 's/$SUBDOMAIN/{subdomain}/' | oc apply -f - -n {user}-argocd
 ----
 
 Next have a look at the ApplicationSet that was deployed with this command:
@@ -149,7 +149,7 @@ Next have a look at the ApplicationSet that was deployed with this command:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-oc get appset coolstore-apps -o yaml -n {user}-argocd | oc neat
+oc get appset coolstore -o yaml -n {user}-argocd | oc neat
 ----
 
 [.console-output]
@@ -167,13 +167,14 @@ spec:
   - list: <2>
       elements:
       - environment: dev <3>
+      - environment: stage
       - environment: prod
   goTemplate: true
   goTemplateOptions:
   - missingkey=error
   template: <4>
     metadata:
-      name: coolstore-app-{{.environment}} <5>
+      name: coolstore-{{.environment}} <5>
       namespace: {user}-argocd
     spec:
       destination:
@@ -181,8 +182,8 @@ spec:
         namespace: {user}-{{.environment}}
       project: {user}
       source:
-        path: content/modules/ROOT/files/gitops/module-02
-        repoURL: https://gitea-gitea.{subdomain}/{user}/workshop.git
+        path: content/modules/ROOT/examples/coolstore/overlays/{{.environment}}
+        repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
         targetRevision: HEAD
       syncPolicy:
         automated:
@@ -197,8 +198,7 @@ generate applications, basically it is 1:1 per element
 <4> The `template` section is where we define the Application resource that the ApplicationSet will create
 <5> Here is an example of referencing the `environment` value to template the name.
 
-Note that while we created these Applications earlier, the ApplicationSet will now assume ownership of them, This
-can be validated with the following command:
+When the ApplicationSet generates the Applications it assumes ownership of them, validate this with the following:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
@@ -216,7 +216,7 @@ oc get app coolstore-app-dev -o=jsonpath='{.metadata.ownerReferences}' -n {user}
       "blockOwnerDeletion": true,
       "controller": true,
       "kind": "ApplicationSet",
-      "name": "coolstore-apps",
+      "name": "coolstore",
       "uid": "1cb40de5-09a0-440e-a12e-28941e9c81b1"
     }
   ]
@@ -224,7 +224,7 @@ oc get app coolstore-app-dev -o=jsonpath='{.metadata.ownerReferences}' -n {user}
 ----
 
 As we can see ApplicationSets provide an easy way to generate Application objects statically but now let's have a look
-at dynamic generation.
+where they really shine, dynamic generation based on external sources.
 
 == Dynamic Generation with git Generator
 
