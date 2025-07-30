@@ -160,21 +160,19 @@ kind: ApplicationSet
 metadata:
   name: coolstore-apps
   namespace: {user}-argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io <1>
 spec:
   generators:
-  - list: <2>
+  - list: <1>
       elements:
-      - environment: dev <3>
+      - environment: dev <2>
       - environment: stage
       - environment: prod
   goTemplate: true
   goTemplateOptions:
   - missingkey=error
-  template: <4>
+  template: <3>
     metadata:
-      name: coolstore-{{.environment}} <5>
+      name: coolstore-{{.environment}} <4>
       namespace: {user}-argocd
     spec:
       destination:
@@ -190,13 +188,11 @@ spec:
           prune: true
           selfHeal: true
 ----
-<1> Argo CD will automatically delete the Applications when the ApplicationSet is deleted. Including a finalizer ensures that the
-resources the Application deployed will also be deleted. See more information link:https://argo-cd.readthedocs.io/en/stable/user-guide/app_deletion/#about-the-deletion-finalizer[here,window="_blank"].
-<2> We are using the `list` generator which enables us to provide a static list of elements to dynamically
+<1> We are using the `list` generator which enables us to provide a static list of elements to dynamically
 generate applications, basically it is 1:1 per element
-<3> Each element has one value, `environment`, which will be templated into the resulting Application object.
-<4> The `template` section is where we define the Application resource that the ApplicationSet will create
-<5> Here is an example of referencing the `environment` value to template the name.
+<2> Each element has one value, `environment`, which will be templated into the resulting Application object.
+<3> The `template` section is where we define the Application resource that the ApplicationSet will create
+<4> Here is an example of referencing the `environment` value to template the name.
 
 Confirm the three Applications, one for each environment, were created:
 
