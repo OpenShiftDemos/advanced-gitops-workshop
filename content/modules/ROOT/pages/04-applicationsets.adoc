@@ -51,7 +51,15 @@ total 12
 -rw-r--r--. 1 lab-user 1001040000   0 Jul 29 21:54 kustomization.yaml
 ----
 
-There are three Applications defined, one for each environment, with kustomize being used to manage them.
+There are three Applications defined, one for each environment, with kustomize being used to manage them. If you look at each
+of these Applications note that each environment is tied to a different kustomize overlay matching the destination. This
+provides an opportunity to tweak the manifests for anything specific to an environment. For example, if you look at the overlays
+the `stage` and `prod` environments are patching the vertx-gateway deployment to have two replicas.
+
+[source,yaml,subs="+macros,attributes+"]
+----
+include::ROOT:example$coolstore/overlays/prod/kustomization.yaml[]
+----
 
 Proceed to deploy the app-of-apps Application:
 
@@ -76,8 +84,8 @@ Click on the `coolstore` tile, notice that it has three resources that it deploy
 
 image::app-of-apps-resources.png[]
 
-Now let's clean-up the Applications however before we do so, have a closer look at the `coolstore` App-of-Apps we deployed:
-[.console-output]
+Now before we clean-up the Applications have a closer look at the `coolstore` App-of-Apps we deployed:
+
 [source,yaml,subs="attributes+,+macros"]
 ----
 include::ROOT:example$app-of-apps/coolstore-app-of-apps.yaml[]
@@ -93,6 +101,16 @@ here as all users are using the same repository, typically this would not be req
 In this section we have seen how we can use App-of-Apps to deploy multiple Applications stored in git. However this list of 
 Applications is static, what if we want to create Applications dynamically based on external sources? This is where
 ApplicationSets come into play.
+
+Delete the Application:
+
+[.console-input]
+[source,yaml,subs="attributes",role=execute]
+----
+delete app coolstore -n {user}-argocd
+----
+
+Wait for all of the Applications to be removed from the Argo CD UI.
 
 == ApplicationSets
 
