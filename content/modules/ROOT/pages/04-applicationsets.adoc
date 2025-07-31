@@ -309,7 +309,7 @@ spec:
       destination:
         name: in-cluster
         namespace: '{{ .values.user }}-{{.path.basename}}'
-      project: '{{ .values.user }}'
+      project: workshop
       source:
         path: '{{.path.path}}' <6>
         repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
@@ -372,7 +372,7 @@ Now that the generation has been verified, go ahead and deploy it:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-list-git.yaml | oc apply -n {user}-argocd -f - 
+sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-appset-git.yaml | oc apply -n {user}-argocd -f - 
 ----
 
 Check that the Applications have been created:

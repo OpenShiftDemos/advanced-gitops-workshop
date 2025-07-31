@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- dep-coolstore.yaml
-- web-nodejs-route.yaml
-- web-nodejs-svc.yaml
+- web-deploy.yaml
+- web-route.yaml
+- web-svc.yaml

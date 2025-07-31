@@ -16,7 +16,7 @@ spec:
         user: $USER
   template:
     metadata:
-      name: app-{{.path.basename}}
+      name: web-{{.path.basename}}
       namespace: '{{ .values.user }}-argocd'
     spec:
       destination:
