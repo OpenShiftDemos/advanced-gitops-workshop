@@ -53,7 +53,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: catalog-spring-boot
+  name: catalog-spring-boot-git
   labels:
     app: catalog
     app.kubernetes.io/component: catalog
