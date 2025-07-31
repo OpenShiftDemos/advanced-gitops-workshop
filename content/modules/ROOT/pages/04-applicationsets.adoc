@@ -252,7 +252,7 @@ You can view this structure in your cloned repository:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-tree ~/workshop/content/modules/ROOT/examples/coolstore
+find ~/workshop/content/modules/ROOT/examples/coolstore -print | sort|sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 ----
 
 [.console-output]
