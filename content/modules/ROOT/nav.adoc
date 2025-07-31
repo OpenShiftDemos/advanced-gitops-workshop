@@ -20,6 +20,11 @@
 ** xref:03-configuration.adoc#config-conclusion[Conclusion]
 
 * xref:04-applicationsets.adoc[4. ApplicatonSets]
+** xref:04-applicationsets.adoc#app-of-apps[App-of-Apps]
+** xref:04-applicationsets.adoc#appsets[ApplicationSets]
+*** xref:04-applicationsets.adoc#appsets-static[Static Generation]
+*** xref:04-applicationsets.adoc#appsets-dynamic[Dynamic Generation]
+** xref:04-applicationsets.adoc#appsets-conclusion[Conclusion]
 
 * xref:05-conclusion.adoc[5. Conclusion]
 ** xref:05-conclusion.adoc#Resources[Resources]
