@@ -1,2 +1,4 @@
 resources:
-- coolstore.yaml
+- catalog.yaml
+- inventory.yaml
+- gateway.yaml
