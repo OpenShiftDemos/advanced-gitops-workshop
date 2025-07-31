@@ -263,7 +263,50 @@ find ~/workshop/content/modules/ROOT/examples/coolstore-web -print | sort|sed -e
 | | | | | | | | | | |--kustomization.yaml
 ----
 
-Let's deploy these applications using an ApplicationSet as we did previously but this time we will use a git generator.
+Let's deploy these applications using an ApplicationSet as we did previously but this time we will use a git generator. However
+the git generator is somewhat more complex, let's test it locally first.
+
+Output the ApplicationSet to a file replacing the workshop $USER variable with your user:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+sed 's/$USER/user5/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-git-appset.yaml > ~/appset.yaml
+----
+
+Next generate the ApplicationSet locally using the `argocd` CLI:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd appset generate ~/appset.yaml
+----
+
+[.console-output]
+[source,bash,subs="attributes+,+macros"]
+----
+NAME                    CLUSTER     NAMESPACE    PROJECT   STATUS  HEALTH  SYNCPOLICY  CONDITIONS  REPO                                                        PATH                                                        TARGET
+{user}-argocd/app-dev    in-cluster  {user}-dev    workshop                  Auto-Prune  <none>      https://github.com/OpenShiftDemos/advanced-gitops-workshop  content/modules/ROOT/examples/coolstore-web/overlays/dev    main
+{user}-argocd/app-prod   in-cluster  {user}-prod   workshop                  Auto-Prune  <none>      https://github.com/OpenShiftDemos/advanced-gitops-workshop  content/modules/ROOT/examples/coolstore-web/overlays/prod   main
+{user}-argocd/app-stage  in-cluster  {user}-stage  workshop                  Auto-Prune  <none>      https://github.com/OpenShiftDemos/advanced-gitops-workshop  content/modules/ROOT/examples/coolstore-web/overlays/stage  main
+----
+
+Three Applications are being generated, one for each environment.
+
+To see the YAML for each Application run the following:
+
+[.console-input]
+[source,sh,subs="attributes",role=execute]
+----
+argocd appset generate ~/appset.yaml -o yaml
+----
+
+[IMPORTANT]
+Using the CLI to generate Applications is very useful when debugging complex ApplicationSets since
+you do not have to spend the time deploying it to the cluster and looking at the Status block to
+understand why it isn't working.
+
+Now that the generation has been verified, go ahead and deploy it: 
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
@@ -276,7 +319,7 @@ Let's have a quick look at our new ApplicationSet:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-oc get appset web-nodejs -o yaml -n {user}-argocd | oc neat
+oc get appset coolstore-web -o yaml -n {user}-argocd | oc neat
 ----
 
 [.console-output]
