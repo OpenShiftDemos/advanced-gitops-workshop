@@ -226,17 +226,6 @@ oc get app coolstore-dev -o=jsonpath='{.metadata.ownerReferences}' -n {user}-arg
 As we can see ApplicationSets provide an easy way to generate Application objects statically but now let's have a look
 where they really shine, dynamic generation based on external sources.
 
-Delete the ApplicationSet before continuting to the next section:
-
-[.console-input]
-[source,sh,subs="attributes",role=execute]
-----
-oc delete appset coolstore -n {user}-argocd
-----
-
-[NOTE]
-It may take a minute or two for it to delete as it deletes the entire chain of applications and resources, be patient.
-
 == Dynamic Generation with git Generator
 
 A common pattern when deploying an application with kustomize with multiple environments is to have a repository that contains the following structure:
@@ -252,7 +241,7 @@ You can view this structure in your cloned repository:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-find ~/workshop/content/modules/ROOT/examples/coolstore -print | sort|sed -e 's;[^/]*/;|--;g;s;--|; |;g'
+find ~/workshop/content/modules/ROOT/examples/coolstore-web -print | sort|sed -e 's;[^/]*/;|--;g;s;--|; |;g'
 ----
 
 [.console-output]
@@ -293,9 +282,11 @@ oc get appset web-nodejs -o yaml -n {user}-argocd | oc neat
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: coolstore
-  namespace: {user}-argocd
+  name: coolstore-web
+  namespace: $USER-argocd
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
   - git: <1>
       directories:
@@ -303,13 +294,10 @@ spec:
       repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop <3>
       revision: HEAD
       values:
-        user: {user} <4>
-  goTemplate: true
-  goTemplateOptions:
-  - missingkey=error
+        user: $USER <4>
   template:
     metadata:
-      name: app-{{.path.basename}} <5>
+      name: coolstore-web-{{.path.basename}} <5>
       namespace: '{{ .values.user }}-argocd'
     spec:
       destination:
@@ -317,10 +305,18 @@ spec:
         namespace: '{{ .values.user }}-{{.path.basename}}'
       project: '{{ .values.user }}'
       source:
-        kustomize:
         path: '{{.path.path}}' <6>
-        repoURL: https://gitea-gitea.{subdomain}/{user}/gitops.git
+        repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
         targetRevision: main
+        kustomize:
+          patches:
+            - target:
+                kind: Deployment
+                name: web
+              patch: |-
+                - op: replace
+                  path: /spec/template/spec/containers/0/env/0/value
+                  value: 'gateway-vertx-{{ .values.user }}-{{.path.basename}}' <7>
       syncPolicy:
         automated:
           prune: true
@@ -330,7 +326,8 @@ spec:
 <3> The target repository
 <4> Additional values to pass to the template
 <5> The basename of the path for which the Application is being generated, either `dev` or `prod` in this case
-<6> the full path in the repo for the current directory
+<6> The full path in the repo for the current directory
+<7> Example of using the passed in value for `{user}`
 
 Check that the Applications have been created:
 
