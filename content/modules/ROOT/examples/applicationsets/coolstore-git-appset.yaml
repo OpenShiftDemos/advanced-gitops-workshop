@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: web-nodejs
+  namespace: $USER-argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - git:
+      repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
+      revision: HEAD
+      directories:
+      - path: content/modules/ROOT/examples/coolstore/overlays/*
+      values:
+        user: $USER
+  template:
+    metadata:
+      name: coolstore-{{.path.basename}}
+      namespace: '{{ .values.user }}-argocd'
+    spec:
+      destination:
+        name: in-cluster
+        namespace: '{{ .values.user }}-{{.path.basename}}'
+      project: '{{ .values.user }}'
+      source:
+        path: '{{.path.path}}'
+        repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop
+        targetRevision: main
+      syncPolicy:
+        automated:

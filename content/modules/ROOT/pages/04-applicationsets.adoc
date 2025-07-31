@@ -252,22 +252,31 @@ You can view this structure in your cloned repository:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-find ~/workshop/content/modules/ROOT/examples/coolstore -print | sort|sed -e 's;[^/]*/;|____;g;s;____|; |;g'
+find ~/workshop/content/modules/ROOT/examples/coolstore -print | sort|sed -e 's;[^/]*/;|--;g;s;--|; |;g'
 ----
 
 [.console-output]
-[source,yaml,subs="attributes+,+macros"]
+[source,bash,subs="attributes+,+macros"]
 ----
-
+| | | | | | | |--coolstore
+| | | | | | | | |--base
+| | | | | | | | | |--coolstore.yaml
+| | | | | | | | | |--kustomization.yaml
+| | | | | | | | |--overlays
+| | | | | | | | | |--dev
+| | | | | | | | | | |--kustomization.yaml
+| | | | | | | | | |--prod
+| | | | | | | | | | |--kustomization.yaml
+| | | | | | | | | |--stage
+| | | | | | | | | | |--kustomization.yaml
 ----
-
 
 Let's deploy these applications using an ApplicationSet as we did previously but this time we will use a git generator.
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/web-nodejs-appset.yaml | sed 's/$SUBDOMAIN/{subdomain}/' | oc apply -f - -n {user}-argocd
+sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-list-git.yaml | oc apply -n {user}-argocd -f - 
 ----
 
 Let's have a quick look at our new ApplicationSet:
@@ -284,16 +293,14 @@ oc get appset web-nodejs -o yaml -n {user}-argocd | oc neat
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: web-nodejs
+  name: coolstore
   namespace: {user}-argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io <1>
 spec:
   generators:
   - git: <1>
       directories:
-      - path: globex/overlays/* <2>
-      repoURL: https://gitea-gitea.{subdomain}/{user}/gitops.git <3>
+      - path: content/modules/ROOT/examples/coolstore/overlays/* <2>
+      repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop <3>
       revision: HEAD
       values:
         user: {user} <4>
@@ -311,14 +318,6 @@ spec:
       project: '{{ .values.user }}'
       source:
         kustomize:
-          patches:
-          - patch: |-
-              - op: replace
-                path: /spec/template/spec/containers/0/env/0/value
-                value: 'gateway-vertx-{{ .values.user }}-{{.path.basename}}'
-            target:
-              kind: Deployment
-              name: web-nodejs
         path: '{{.path.path}}' <6>
         repoURL: https://gitea-gitea.{subdomain}/{user}/gitops.git
         targetRevision: main
