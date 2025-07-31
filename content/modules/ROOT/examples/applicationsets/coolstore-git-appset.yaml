@@ -22,7 +22,7 @@ spec:
       destination:
         name: in-cluster
         namespace: '{{ .values.user }}-{{.path.basename}}'
-      project: '{{ .values.user }}'
+      project: workshop
       source:
         path: '{{.path.path}}'
         repoURL: https://github.com/OpenShiftDemos/advanced-gitops-workshop

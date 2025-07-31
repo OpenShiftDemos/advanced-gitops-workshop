@@ -236,7 +236,8 @@ A common pattern when deploying an application with kustomize with multiple envi
     ** *stage*: specific values that will override the ones in the base for the "stage" environment
     ** *prod*: specific values that will override the ones in the base for the "prod" environment
 
-You can view this structure in your cloned repository:
+We will be deploying the web frontend for the backend we deployed in the previous section, view the 
+structure in the cloned repository:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
@@ -247,10 +248,12 @@ find ~/workshop/content/modules/ROOT/examples/coolstore-web -print | sort|sed -e
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-| | | | | | | |--coolstore
+| | | | | | | |--coolstore-web
 | | | | | | | | |--base
-| | | | | | | | | |--coolstore.yaml
 | | | | | | | | | |--kustomization.yaml
+| | | | | | | | | |--web-deploy.yaml
+| | | | | | | | | |--web-route.yaml
+| | | | | | | | | |--web-svc.yaml
 | | | | | | | | |--overlays
 | | | | | | | | | |--dev
 | | | | | | | | | | |--kustomization.yaml
