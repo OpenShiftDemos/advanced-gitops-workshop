@@ -1,6 +1,6 @@
 ---
 site:
-  title: Asdvanced OpenShift GitOps Workshop
+  title: Advanced OpenShift GitOps Workshop
   url: https://openshiftdemos.github.io/advanced-gitops-workshop
   start_page: advanced-gitops-workshop::index.adoc
 
