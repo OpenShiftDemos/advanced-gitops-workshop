@@ -4,7 +4,7 @@ metadata:
   name: workshop
   namespace: user%USERNUM%-argocd
 spec:
-  description: Team%USERNUM%'s' Project
+  description: Team%USERNUM%'s Project
   clusterResourceBlacklist:
   - group: '*'
     kind: '*'

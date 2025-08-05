@@ -162,7 +162,7 @@ spec:
 ----
 
 Note the `default` Project has no restrictions associated with it, Applications using this Project can deploy any resource, namespace or cluster
-that Argo CD itself has access to. However no permissions have been defined here either which means that unless we have permissions
+that Argo CD itself has access to. Also note that no permissions have been defined here either which means that unless we have permissions
 defined in the Global RBAC, which we already checked, we cannot deploy any Applications with the `default` project.
 
 [NOTE]
@@ -175,7 +175,7 @@ Since we don't want to use the `default` Project, we will create a new Project t
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/appproject.yaml | sed "s/%USERNUM%\//{usernum}\//" | oc apply -n user{usernum}-argocd -f -
+sed "s/%USERNUM%/{usernum}/" ~/workshop/content/modules/ROOT/examples/rbac/appproject.yaml | oc apply -n user{usernum}-argocd -f -
 ----
 
 Now view the AppProject we just created:
@@ -197,7 +197,7 @@ spec:
   clusterResourceBlacklist: <1>
   - group: '*'
     kind: '*'
-  description: Team2's' Project <2>
+  description: Team{usernum}'s Project <2>
   destinations: <3>
   - namespace: {user}-dev
     server: https://kubernetes.default.svc
@@ -233,7 +233,7 @@ spec:
 
 Review the items defined by the `workshop` AppProject:
 
-<1> First all cluster scoped resources, i.e. resources that don't have a namespace such as ClusterRole. This prevents users from deploying cluster level resources
+<1> First deny all cluster scoped resources, i.e. resources that don't have a namespace such as ClusterRole. This prevents users from deploying cluster level resources like ClusterRole
 <2> We define a friendly description for the project
 <3> The destinations that Applications that belong to this AppProject are permitted to deploy resources. Specifically we permit the `{user}-dev`, `{user}-stage` and `{user}-prod` namespaces in the local cluster Kubernetes server `https://kubernetes.default.svc`. We could wildcard the namespaces with a single destination using `{user}-*`, however we do not want to have `{user}-argocd` as a valid destination.
 <4> Certain namespace scoped resources that are typically the purview of the platform team are blacklisted
@@ -257,19 +257,19 @@ Now let's focus on the RBAC defined in the `workshop` Project that we created:
 [source,bash,subs="attributes+,+macros"]
 ----
   roles:
-  - description: Team2 Admins
+  - description: Team{usernum} Admins
     groups:
     - team{usernum} <1>
     name: admin <2>
     policies: <3>
-    - p, proj:workshop:admin, applications, *, workshop/*, allow
-    - p, proj:workshop:admin, exec, create, workshop/*, allow
+    - p, proj:workshop:admin, applications, *, workshop/*, allow <4>
+    - p, proj:workshop:admin, exec, create, workshop/*, allow <5>
 ----
 
 Here we are defining a single role:
 
 <1> This role is linked to the group `team{usernum}` which your user is a member of.
-<2> The name of the role is `admin`, note that this role is scoped to this Project.
+<2> The name of the role is `admin`, note that this role is scoped specifically to this Project
 <3> The policies, i.e permissions, that are applied by this role.
 
 Let's break down the first policy into it's constituent parts:
@@ -277,10 +277,10 @@ Let's break down the first policy into it's constituent parts:
 [.console-output]
 [source,bash,subs="attributes+,+macros"]
 ----
-p   , <1>
+p, <1>
 proj:workshop:admin, <2>
 applications, <3>
-* , <4>
+*, <4>
 workshop/*, <5>
 allow <6>
 ----
@@ -299,7 +299,7 @@ are available.
 we have `workshop/*` which allows all Applications that belong to the `workshop` Project.
 <6> Finally whether we `allow` or `deny` the permission, in this case we `allow` to grant permissions.
 
-The second policy line with the `exec` permission enables usage of the terminal in the Argo CD user interface.
+The second policy line with the `exec` permission enables usage of the terminal in the Argo CD user interface which we will see in the next module.
 
 Now let's try to create Application again using the same steps as previously, it is the same Application yaml as previously
 but the project is changed from `default` to `workshop`
@@ -327,7 +327,7 @@ spec:
       selfHeal: true
 ----
 
-Wait for the Application to become Healthy and Synched as follows:
+Wait for the Application to become Healthy and Synced as follows:
 
 image::argocd-bgd-app.png[]
 
@@ -372,8 +372,8 @@ A few items to note about this global configuration:
 to be explicitly enabled.
 * Next we have the policy section where we define policies and assign them to groups.
 ** Users in the `system:cluster-admins` group are assigned to the `role:admin` role, this group only applies to the `kube-admin` user.
-** The next line operates similarly but grants the `role:admin` role to any users in the cluster-admins group.
-* Finally scopes are set to include accounts, groups and email. Argo CD uses OIDC for authentication and this
+** The next line operates similarly but grants the `role:admin` role to any users in the `cluster-admins` group.
+* Finally scopes are set to include groups. Argo CD uses OIDC for authentication and this
 matches OIDC link:https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims[scopes, window="_blank"], scopes selected
 here can be used to match groups in the policy section.
 
@@ -423,9 +423,7 @@ reviewed earlier. While `groups` is the most commonly set scope, having scopes l
 allows you to match roles to individual users. In a nutshell, when adding additional scopes, like `email`, these
 are treated as groups by Argo CD for matching purposes.
 
-We can also define our own policies here, as we can see with the new `role:none` that was added, if we need to define
-fine-grained permissions. We will look at the more later when talking about Argo CD Projects and RBAC but first we
-need to understand what an Argo CD Project is and why it is needed.
+We can also define our own policies here, as we can see with the new `role:none` policy that was added as mentioned earlier. 
 
 Confirm that you can now see all Projects by going back to Settings > Projects:
 
@@ -455,4 +453,4 @@ image::argocd-delete-app-dialog.png[]
 [NOTE]
 Foreground and Background delete will remove all of the resources associated with the Application, Non-cascading will
 leave the resources in place. Non-cascading can be useful when you need to temporarily remove an Application for some
-reason such as restructuring Applications.
+reason such as migrating or restructuring Applications.
