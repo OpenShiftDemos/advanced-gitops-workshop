@@ -7,13 +7,13 @@ and the newer ApplicationSets in Argo CD.
 [#app-of-apps]
 == App-of-Apps
 
-Before we delve into ApplicatioSets, let's dive into the useful link:https://argo-cd.readthedocs.io/en/latest/operator-manual/cluster-bootstrapping/#app-of-apps-pattern[App-of-Apps, window="_blank"] 
-pattern which predates ApplicationSets. 
+Before we delve into ApplicationSets, let's dive into the useful link:https://argo-cd.readthedocs.io/en/latest/operator-manual/cluster-bootstrapping/#app-of-apps-pattern[App-of-Apps, window="_blank"]
+pattern which predates ApplicationSets.
 
-The concept of App-of-Apps is that you have an Application in Argo CD that points to a location that consists only of Applications. This enables bootstrapping a set of 
+The concept of App-of-Apps is that you have an Application in Argo CD that points to a location that consists only of Applications. This enables bootstrapping a set of
 Applications from a single Application and is useful in use cases such as cluster configuration and same app with multiple environments scenarios.
 
-Before we can deploy the App-of-Apps, we first need to deploy a health check for the Application resource which is not included as a health check in Argo CD at this time. 
+Before we can deploy the App-of-Apps, we first need to deploy a health check for the Application resource which is not included as a health check in Argo CD at this time.
 
 [NOTE]
 This is because in Argo CD 1.x the default Application health check was removed, the author of this workshop link:https://github.com/argoproj/argo-cd/issues/16870[disagrees, window="_blank"] with
@@ -99,7 +99,7 @@ using the App-of-Apps pattern as per the link:https://argo-cd.readthedocs.io/en/
 The kustomize section is used to transform the destination for the Application for your specific user. This is only needed
 here as all users are using the same repository, typically this would not be required.
 
-In this section we have seen how we can use App-of-Apps to deploy multiple Applications stored in git. However this list of 
+In this section we have seen how we can use App-of-Apps to deploy multiple Applications stored in git. However this list of
 Applications is static, what if we want to create Applications dynamically based on external sources? This is where
 ApplicationSets come into play.
 
@@ -144,7 +144,7 @@ Deploy the ApplicationSet using the following command:
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-list-appset.yaml | oc apply -n {user}-argocd -f - 
+sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-list-appset.yaml | oc apply -n {user}-argocd -f -
 ----
 
 Next have a look at the ApplicationSet that was deployed with this command:
@@ -236,7 +236,7 @@ In this example we will deploy the front-end of the coolstore using an Applicati
 git generator supports two modes, file and directory. In our case we will leverage the directory mode to
 point the generator at a set of kustomize overlays in the repository.
 
-For those not familiar with kustomize, a common pattern when deploying an application with kustomize for multiple 
+For those not familiar with kustomize, a common pattern when deploying an application with kustomize for multiple
 environments is to have a repository that contains a `base` and `overlays` folders. The base folder contains
 all of the manifests to be deployed. The `overlays` are used to patch the base to handle any
 environment specific differences.
@@ -276,7 +276,7 @@ find ~/workshop/content/modules/ROOT/examples/coolstore-web -print | sort|sed -e
 ----
 
 Let's deploy these applications using an ApplicationSet using the git generator. However
-the git generator is somewhat more complex then the previous static list example so let's test 
+the git generator is somewhat more complex then the previous static list example so let's test
 it locally first to verify that it works.
 
 Output the ApplicationSet to a file replacing the workshop $USER variable with your user:
@@ -339,7 +339,7 @@ spec:
       syncPolicy:
         automated:
           prune: true
-          selfHeal: true          
+          selfHeal: true
 ----
 <1> We are using the git generator to create an Application for every directory in the target repository and path
 <2> The target path, each sub-directory in this path will be used to create an application. In our case the `dev` and `prod` overlays
@@ -381,12 +381,12 @@ Using the CLI to generate Applications is very useful when debugging complex App
 you do not have to spend the time deploying it to the cluster and looking at the Status block to
 understand why it isn't working.
 
-Now that the generation has been verified, go ahead and deploy it: 
+Now that the generation has been verified, go ahead and deploy it:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
 ----
-sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-git-appset.yaml | oc apply -n {user}-argocd -f - 
+sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-git-appset.yaml | oc apply -n {user}-argocd -f -
 ----
 
 Check that the Applications have been created:

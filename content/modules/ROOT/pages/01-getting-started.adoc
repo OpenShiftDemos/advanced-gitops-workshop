@@ -67,7 +67,7 @@ WARNING: Using insecure TLS client config. Setting this option is not supported!
 
 Login successful.
 
-You have access to the following projects and can switch between them with 'oc project <projectname>':
+You have access to the following projects and can switch between them with 'oc project <project-name>':
 
   * {user}-argocd
     {user}-dev

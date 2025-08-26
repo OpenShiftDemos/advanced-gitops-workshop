@@ -48,7 +48,7 @@ As indicated here, the ConfigMap is being rendered by the Operator based on the 
 oc get argocd argocd -n {user}-argocd -o yaml | oc neat
 ----
 
-One of the benefits the Operator provides is a schema based approach to configuation that is supported
+One of the benefits the Operator provides is a schema based approach to configuration that is supported
 the Kubernetes `explain` command. Here are a couple of examples for you to try:
 
 [.console-input]
@@ -209,7 +209,7 @@ STATUS: Progressing
 MESSAGE
 ----
 
-Note the command confirms that Argo CD considers the PVC to be `Progressing`, let's change that with the following 
+Note the command confirms that Argo CD considers the PVC to be `Progressing`, let's change that with the following
 custom health check writtin in LUA to override the default one:
 
 [source,yaml,subs="+macros,attributes+"]
@@ -289,8 +289,8 @@ STATUS: Healthy
 MESSAGE: Pending
 ----
 
-Great, our updated health check is working! The status is returned as `Healthy` to Argo CD but we set the message field to the 
-Kubernetes status of the PVC to provide additional context. 
+Great, our updated health check is working! The status is returned as `Healthy` to Argo CD but we set the message field to the
+Kubernetes status of the PVC to provide additional context.
 
 Let's go ahead and patch it into our ArgoCD Custom Resource on the cluster to take advantage of it:
 
@@ -385,8 +385,8 @@ The Argo CD user interface, when viewing a pod, can optionally show a link:https
 tab similar to what you see in the OpenShift console. This can be useful for organizations which use the Argo CD UI
 as the primary means for managing Kubernetes resources.
 
-While we previously gave permissions for the terminal in the previous module, by default this is not enabled. To verify this, 
-in the health application that was deployed previously click on the pod. 
+While we previously gave permissions for the terminal in the previous module, by default this is not enabled. To verify this,
+in the health application that was deployed previously click on the pod.
 
 image::argocd-select-pod.png[]
 
@@ -395,9 +395,9 @@ Note that the only tabs available are `SUMMARY`, `EVENTS` and `LOGS` with no `TE
 image::argocd-pod-tabs.png[]
 
 As mentioned previously, not all Argo CD settings are defined in the ArgoCD Custom Resource and enabling
-the terminal is one of those cases. 
+the terminal is one of those cases.
 
-For cases like this where a setting is not defined, we can use the `extraConfig` to have the operator add these items 
+For cases like this where a setting is not defined, we can use the `extraConfig` to have the operator add these items
 directly to the `argocd-cm` ConfigMap. Whatever is defined, correctly or incorrectly, will be copied
 to this ConfigMap so some care should be taken when using this feature.
 
@@ -427,7 +427,7 @@ image::argocd-terminal.png[]
 
 [IMPORTANT]
 As per the link:https://argo-cd.readthedocs.io/en/latest/operator-manual/web_based_terminal/[Argo CD Documentation, window="_blank"], the `argocd-server` ServiceAccount must be granted additional permissions with Kubernetes RBAC
-to enable the terminal. These permissions have already been applied by specifying a custom ClusterRole for the GitOps Operator. 
+to enable the terminal. These permissions have already been applied by specifying a custom ClusterRole for the GitOps Operator.
 
 [#config-conclusion]
 == Conclusion
