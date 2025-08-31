@@ -1,7 +1,7 @@
 = Conclusion
 include::_attributes.adoc[]
 
-Thanks for participating in this workshop, we hope you enjoyed it.
+Thanks for participating in this workshop. We hope you enjoyed it.
 
 == Resources
 

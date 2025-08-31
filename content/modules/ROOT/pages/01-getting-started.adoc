@@ -50,8 +50,8 @@ command to login as {user}.
 {login_command}
 ----
 
-When you login you will see a prompt about using an insecure connection as the Kubernetes API
-in this workshop is using a default certificate, type `y` to accept and the login will continue.
+When you login, you will see a prompt about using an insecure connection as the Kubernetes API
+in this workshop is using a default certificate. Type `y` to accept and the login will continue.
 
 *Once completed you should see the following in the terminal:*
 
@@ -94,7 +94,7 @@ console.  In this workshop, we will only use the Argo CD web console.
 
 Click on the following link to access the Argo CD user interface:
 
-link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[{https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain},window='_blank']
+link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain},window='_blank']
 
 Click on the `Log In Via OpenShift` button and use the same username
 and password that you used to login in with OpenShift.
@@ -114,9 +114,8 @@ image::argocd-login2.png[ArgoCDLogin2, 600]
 [#argocd-cli]
 == Argo CD CLI
 
-The Argo CD CLI enables users to interact with Argo CD via a command line. It is useful for both scripts
-and general usage. There are two ways to login into the CLI, the preferred way is to login using your Argo CD
-credential so that Argo CD RBAC is applied.
+The Argo CD CLI enables users to interact with Argo CD via a command line. It is useful as a way to integrate Argo CD into scripts as well as for general usage. There are two ways to login into the CLI. The preferred way is to login using your Argo CD
+account so that Argo CD RBAC is applied.
 
 The second way is to use the `--core` switch which logs in using the Kubernetes context. This can be useful as
 a fallback if for some reason the Argo CD CLI is not working as expected. Also link:https://argo-cd.readthedocs.io/en/stable/operator-manual/core[Argo CD Core, window="_blank"] is
@@ -124,12 +123,12 @@ a lightweight version of Argo CD that does not include the Server component and 
 available. In this case logging in with core mode is the only option.
 
 [NOTE]
-Normally when using Argo CD with OIDC the login would be done with using the `--sso` switch
-which starts up a local web server to handle the OIDC callback on localhost. However since
-our terminal is running in a pod in OpenShift this is not possible. Therefore here we will
+Normally when using Argo CD with OIDC, the login would be accomplished using the `--sso` switch
+which starts up a local web server to handle the OIDC callback on localhost. However, since
+our terminal is running in a pod in OpenShift, this is not possible. Therefore here we will
 use the `--core` switch since you own the Argo CD instance and thus RBAC is not an issue.
 
-To login into Argo CD execute the following:
+To login into Argo CD, execute the following:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
@@ -144,7 +143,7 @@ Context 'kubernetes' updated
 ----
 
 [NOTE]
-If you get an error about requiring `0400` or `0600` permissions you can
+If you get an error about requiring `0400` or `0600` permissions, you can
 correct it by executing `chmod 0600 .config/argocd/config`.
 
 Test your login with the following command to list projects:
@@ -175,23 +174,22 @@ argocd --help
 [#gitops-architecture]
 == OpenShift GitOps Architecture
 
-In this section we will do a brief overview of the OpenShift GitOps architecture which is depicted in the diagram below.
+In this section, we will perform a brief overview of the OpenShift GitOps architecture which is depicted in the diagram below.
 
 image::argocd-architecture.png[]
 
 [NOTE]
-In the diagram above, everything contained within the dotted line is running in OpenShift whereas outside the line are external
+In the diagram above, everything contained within the dotted line is running in OpenShift, whereas outside the line are external
 dependencies or interactions.
 
 The OpenShift GitOps operator is used to deploy, manage and upgrade an installation of Argo CD which runs in a
 specified namespace. The Argo CD installation contains several components, running as individual deployments,
 which are as follows:
 
-1. *Application Controller*. This component is responsible for deploying Kubernetes resources and watching the resources for change,
-to do so it interacts with the Kubernetes API.
-2. *Repo Server*. This component manages access to the manifests via a git repository, it is responsible for
-fetching the manifests (i.e. yaml files). These manifests can be built from raw yaml, helm or kustomize but
-additional tools can be used via a plugin architecture. For improved performance, it caches these manifests
+1. *Application Controller*. This component is responsible for deploying Kubernetes resources and watching the resources for changes. 
+To do so, it interacts with the Kubernetes API.
+2. *Repo Server*. This component manages access to the manifests via a git or helm repository. It is responsible for
+fetching the manifests (i.e. yaml files). These manifests can be built from raw yaml, helm or kustomize. Additional tools can be used via a plugin architecture. For improved performance, it caches these manifests
 in the redis component.
 3. *Server*. This provides the user interface as well as a REST API.
 4. *Dex (optional)*. Provides authentication via OpenShift OAuth2, in this workshop it is not used as we
