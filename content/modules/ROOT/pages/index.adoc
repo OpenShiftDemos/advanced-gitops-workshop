@@ -3,7 +3,7 @@
 :!sectids:
 
 OpenShift GitOps is based on the upstream
-https://argoproj.github.io/argo-cd/[Argo CD,window='_blank'] project. ArgoCD is
+https://argoproj.github.io/argo-cd/[Argo CD,window='_blank'] project. Argo CD is
 a declarative, GitOps continuous delivery tool for Kubernetes.
 
 It follows the **GitOps** pattern of using Git repositories as the source of

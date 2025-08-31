@@ -1,14 +1,14 @@
 = GitOps Configuration
 include::_attributes.adoc[]
 
-Argo CD includes a very large number of configuration options, in this module we will review some of the
-key options that advanced GitOps practitioners need to be aware of. However before we get started
-lets quickly review how Argo CD manages it's configuration and where it is stored.
+Argo CD includes a very large number of configuration options. In this module, we will review some of the
+key options that advanced GitOps practitioners need to be aware of. However, before we get started,
+let's quickly review how Argo CD manages its configuration and where it is stored.
 
 [#config-introduction]
 == Introduction
 
-If you install Argo CD with a Helm chart you will find that it stores the configuration in the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-cm-yaml/[argocd-cm, window="_blank]
+Whether you installed Argo CD with a Helm chart or the OpenShift GitOps operator, you will find that the resulting configuration is stored in the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-cm-yaml/[argocd-cm, window="_blank]
 ConfigMap. Review this as follows:
 
 [.console-input]
@@ -17,11 +17,9 @@ ConfigMap. Review this as follows:
 oc get configmap argocd-cm -n {user}-argocd -o yaml | oc neat
 ----
 
-This ConfigMap has a number of fields but the bulk of the configuration is for Dex to authenticate to OpenShift.
+This ConfigMap has a number of fields, but the bulk of the configuration is used to define how Dex authenticates to OpenShift.
 
-With the Helm chart you could edit the ConfigMap directly but here you cannot because it is operator managed as we installed
-Argo CD with the OpenShift GitOps operator. Any changes that are made directly to the ConfigMap will be automatically reverted
-by the operator. You can see this is the case by noting the ConfigMap is owned by the operator:
+With the Helm chart, you could edit the ConfigMap directly. However, when using the OpenShift GitOps operator with Argo CD, any changes that are made directly to the ConfigMap will be automatically reverted. You can see this is the case by noting the ConfigMap is owned by the operator:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
@@ -68,7 +66,7 @@ oc explain argocd.spec.controller
 This shows the options available for managing the Argo CD Application Controller.
 
 The operator does not support all of the configuration options that can be made in the ConfigMap, just the
-most common ones. To address this the `extraConfig` field exists that enables directly setting Argo CD
+most common ones. To address this, the `extraConfig` field exists that enables directly setting Argo CD
 configuration and the operator will transpose them as is into the `argocd-cm` ConfigMap.
 
 [.console-input]
@@ -102,9 +100,9 @@ the health check, *resources without a defined health check will be skipped once
 
 Argo CD supports a number of health statuses as per the documentation:
 
-1. _Healthy_. Indicates a resource is in a good state, will automatically be used if no health check is available.
+1. _Healthy_. Indicates a resource is in a good state. Will automatically be used if no health check is available.
 2. _Suspended_. The resource is suspended and waiting for some external event to resume (e.g. suspended CronJob or paused Deployment)
-3. _Progressing_. The resource is not healthy yet but still making progress and might be healthy soon
+3. _Progressing_. The resource is not healthy yet, but still making progress and might be healthy soon
 4. _Missing_. The resource is missing and not available.
 5. _Degraded_. The resource is degraded
 6. _Unknown_. The health of the resource could not be determined
@@ -122,10 +120,10 @@ folder.
 3. _Custom_. These are health checks that you create yourself and configure in Argo CD. This can be done for resources that do not have a
 health check defined or used to override a Native or Included health check.
 
-To understand the importance of health checks, let's deploy the bgd Application again but this time with a PersistentVolumeClaim (PVC). Also there is a sync wave
+To understand the importance of health checks, let's deploy the bgd Application again but this time with a PersistentVolumeClaim (PVC). Also, there is a sync wave
 defined with the PVC being the first resource deployed.
 
-In the link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[Argo CD UI, window="_blank"] create a new Application as follows:
+In the link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domain}[Argo CD UI, window="_blank"], create a new Application as follows:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
@@ -133,12 +131,12 @@ In the link:https://argocd-server-{user}-argocd.{openshift_cluster_ingress_domai
 sed "s/%USER%/{user}/" ~/workshop/content/modules/ROOT/examples/health/application-bgd.yaml | oc apply -f -
 ----
 
-You should see a new Application tile called `health-test` appear but that this tile never gets synced as it is stuck in
-`Progressing`.
+You should see a new Application tile called `health-test` appear but that this tile never gets synced as it is stuck in the 
+`Progressing` state.
 
 image::health-test-tile-progressing.png[]
 
-Click on the `health-test` tile and note that the PVC seems to be stuck in `Progressing`.
+Click on the `health-test` tile and note that the PVC seems to be stuck `Progressing`.
 
 image::health-test-pvc-progressing.png[]
 
@@ -157,22 +155,21 @@ NAME      STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTR
 storage   Pending                                      gp3-csi        <unset>                 6m52s
 ----
 
-Notice the PVC is in a `Pending` state, this is because the storage class we are using is late binding. This means
-the PVC only shifts to the `Bound` state when it is mounted. Since we used a sync wave to apply the PVC first we can
+Notice the PVC is in a `Pending` state. This is because the storage class we are using is using the late binding strategy which shifts the state to `Bound` only when it is mounted. Since we used a sync wave to apply the PVC first, we can
 see that it is blocking other items from progressing.
 
 You can see the sync waves associated with each item by clicking the list icon in the upper right corner.
 
 image::health-test-sync-wave.png[]
 
-Note that the `storage` PVS has a default sync wave of `-` which means `0`, whereas all other resources are set to a sync wave
+Note that the `storage` PVC has a default sync wave of `-` which means `0`, whereas all other resources are set to a sync wave
 of `1` so the PVC is applied first.
 
 This situation occurs because the default health check considers a PVC with a `Pending` status to be in the `Progressing` state. Let's
-correct this by overriding the health check to be considered `Healthy` when `Pending` with a custom health check. We will use the Argo CD
+correct this by overriding the health check to be considered `Healthy` when it is `Pending` by defining a custom health check. We will use the Argo CD
 Command Line Interface (CLI) to iteratively test our health check.
 
-First start by getting a local copy of the PVC manifest:
+First, start by getting a local copy of the PVC manifest:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
@@ -180,7 +177,7 @@ First start by getting a local copy of the PVC manifest:
 oc get pvc storage -n {user}-dev -o yaml > ~/pvc.yaml
 ----
 
-Next get a copy of the Argo CD `ConfigMap` where the settings are stored:
+Next, get a copy of the Argo CD `ConfigMap` where the settings are stored:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
@@ -189,11 +186,11 @@ oc get configmap argocd-cm -n {user}-argocd -o yaml > ~/argocd-cm.yaml
 ----
 
 [NOTE]
-Remember that the Argo CD Operator manages Argo CD configuration in the Argo CD CustomResource, the operator
+Remember that the Argo CD Operator manages Argo CD configuration in the Argo CD CustomResource. The operator
 manages the `argocd-cm` ConfigMap and applies the settings from the operator automatically. If you install
-Argo CD with a Helm chart then the `argocd-cm` is managed directly.
+Argo CD with a Helm chart, then the `argocd-cm` is managed directly.
 
-Finally use the Argo CD CLI to verify the current health check behavior:
+Finally, use the Argo CD CLI to verify the current health check behavior:
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
 ----
@@ -209,8 +206,8 @@ STATUS: Progressing
 MESSAGE
 ----
 
-Note the command confirms that Argo CD considers the PVC to be `Progressing`, let's change that with the following
-custom health check writtin in LUA to override the default one:
+The command confirms that Argo CD considers the PVC to be `Progressing`. Let's change that with the following
+custom health check written in LUA to override the default one:
 
 [source,yaml,subs="+macros,attributes+"]
 ----
@@ -231,8 +228,8 @@ hs.message = "Waiting for PVC status"
 return hs
 ----
 
-In this health check, in section <1> we return a `Healthy` status for both the `Pending` and `Bound` phases, if the status
-is `Lost` we return a `Degraded` status and finally if there is no `status` or `phase` we return an `Unknown` status. You can
+In this health check, in section <1> we return a `Healthy` status for both the `Pending` and `Bound` phases. If the status
+is `Lost`, we return a `Degraded` status and finally if there is no `status` or `phase`, we return an `Unknown` status. You can
 view how this compares to the native health check for PVCs link:https://github.com/argoproj/gitops-engine/blob/093aef0dad58015619479509f0d2ac71cc9cefd7/pkg/health/health_pvc.go#L28[here, window="_blank"].
 
 Insert this new health check to the local `argocd-cm` ConfigMap we are testing with the following command:
@@ -272,7 +269,7 @@ resource.customizations.health.PersistentVolumeClaim: |
   return hs
 ----
 
-Now test the status that is returned using the Argo CD CLI again but using our new configmap with the updated PVC health check:
+Now, test the status that is returned using the Argo CD CLI again but using our new ConfigMap with the updated PVC health check:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
@@ -308,12 +305,12 @@ In twenty to thirty seconds you should see the Refresh complete and the Applicat
 
 image::argocd-health-test-synced.png[]
 
-In this section we have reviewed how health checks work, why they are important and how to iteratively build and test them.
+In this section, we have reviewed how health checks work, why they are important and how to iteratively build and test them.
 
 [#enable-appset]
 == Enabling ApplicationSets
 
-By default the OpenShift GitOps operator does not enable ApplicationSets, confirm by reviewing
+By default, the OpenShift GitOps operator does not enable ApplicationSets. This can be confirmed by reviewing
 the existing deployments in the `{user}-argocd` namespace.
 
 [.console-input]
@@ -338,7 +335,7 @@ Note the absence of an applicationset-controller.
 You may be wondering why there is no `application-controller` Deployment as per our earlier architecture section. This
 is because the `application-controller` is deployed as a StatefulSet rather then a Deployment.
 
-To enable ApplicationSets we will apply the following patch to the ArgoCD CR:
+To enable ApplicationSets, we will apply the following patch to the ArgoCD CR:
 
 [source,yaml,subs="+macros,attributes+"]
 ----
@@ -346,7 +343,7 @@ include::ROOT:example$enable-applicationset/enable-applicationset-patch.yaml[]
 ----
 
 [NOTE]
-There are more configuraton options available then just `enabled`, feel free to explore them
+There are more configuration options available then just `enabled`. Feel free to explore them
 by running `oc explain argocd.spec.applicationSet`.
 
 Apply the patch:
@@ -385,8 +382,8 @@ The Argo CD user interface, when viewing a pod, can optionally show a link:https
 tab similar to what you see in the OpenShift console. This can be useful for organizations which use the Argo CD UI
 as the primary means for managing Kubernetes resources.
 
-While we previously gave permissions for the terminal in the previous module, by default this is not enabled. To verify this,
-in the health application that was deployed previously click on the pod.
+While we previously gave permissions for the terminal in the previous module, by default, this is not enabled. To verify this,
+in the health application that was deployed previously, click on the pod.
 
 image::argocd-select-pod.png[]
 
@@ -403,7 +400,7 @@ to this ConfigMap so some care should be taken when using this feature.
 
 [IMPORTANT]
 Before using `extraConfig`, you should always validate the option you want to set is not in fact
-available in the Operator. Also as a reminder never edit the `argocd-cm` ConfigMap directly, the operator will
+available in the Operator. Also as a reminder, never edit the `argocd-cm` ConfigMap directly, the operator will
 revert any manual changes.
 
 Review the patch that we are going to apply:
@@ -421,7 +418,7 @@ Apply the patch:
 oc patch -n {user}-argocd argocd argocd --type=merge --patch-file=/home/lab-user/workshop/content/modules/ROOT/examples/pod-exec/enable-terminal-patch.yaml
 ----
 
-Verify that you can now see the terminal tab for the pod resource, note that you will need to close the Pod view and then re-open it:
+Verify that you can now see the terminal tab for the pod resource. Note that you will need to close the Pod view and then re-open it:
 
 image::argocd-terminal.png[]
 
@@ -432,7 +429,7 @@ to enable the terminal. These permissions have already been applied by specifyin
 [#config-conclusion]
 == Conclusion
 
-In this module we have learned how to configure Argo CD, the importance of health checks and handling
+In this module, we have learned how to configure Argo CD, the importance of health checks and handling
 configuration options not available in the Operator.
 
 Clean-up your work by deleting the `health-test` Application using the default `Foreground` deletion option.

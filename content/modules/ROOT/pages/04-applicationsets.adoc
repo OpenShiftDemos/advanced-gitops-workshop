@@ -1,7 +1,7 @@
 = ApplicationSets
 include::_attributes.adoc[]
 
-In this module you will learn how to deploy multiple applications from a single Application using the App-of-Apps pattern
+In this module, you will learn how to deploy multiple applications from a single Application using the App-of-Apps pattern
 and the newer ApplicationSets in Argo CD.
 
 [#app-of-apps]
@@ -16,10 +16,10 @@ Applications from a single Application and is useful in use cases such as cluste
 Before we can deploy the App-of-Apps, we first need to deploy a health check for the Application resource which is not included as a health check in Argo CD at this time.
 
 [NOTE]
-This is because in Argo CD 1.x the default Application health check was removed, the author of this workshop link:https://github.com/argoproj/argo-cd/issues/16870[disagrees, window="_blank"] with
+This is because in Argo CD 1.x the default Application health check was removed. The author of this workshop link:https://github.com/argoproj/argo-cd/issues/16870[disagrees, window="_blank"] with
 that decision but unfortunately this is the current state.
 
-To add the Application Health check use the following command:
+To add the Application Health check, use the following command:
 
 [.console-input]
 [source,yaml,subs="attributes",role=execute]
@@ -33,7 +33,7 @@ oc patch -n {user}-argocd argocd argocd --type=merge --patch-file=/home/lab-user
 argocd.argoproj.io/argocd patched
 ----
 
-Next review the applications that the App-of-Apps will be deploying:
+Next, review the applications that the App-of-Apps will be deploying:
 
 [.console-input]
 [source,bash,subs="attributes+,+macros"]
@@ -52,9 +52,9 @@ total 12
 ----
 
 There are three Applications defined, one for each environment, with kustomize being used to manage them. If you look at each
-of these Applications note that each environment is tied to a different kustomize overlay matching the destination. This
+of these Applications, note that each environment is tied to a different kustomize overlay matching the destination. This
 provides an opportunity to tweak the manifests for anything specific to an environment. For example, if you look at the overlays
-for the `stage` and `prod` environments we are patching the vertx-gateway deployment to have two replicas instead of the default
+for the `stage` and `prod` environments, we are patching the vertx-gateway deployment to have two replicas instead of the default
 one replica defined in the base.
 
 [source,yaml,subs="+macros,attributes+"]
@@ -81,7 +81,7 @@ three environment specific Applications that were deployed by the `coolstore` Ap
 
 image::app-of-apps-tiles.png[]
 
-Click on the `coolstore` tile, notice that it has three resources that it deployed which were the environment specific Applications.
+Click on the `coolstore` tile. Notice that it has three resources that it deployed which were the environment specific Applications.
 
 image::app-of-apps-resources.png[]
 
@@ -92,15 +92,14 @@ Now before we clean-up the Applications have a closer look at the `coolstore` Ap
 include::ROOT:example$app-of-apps/coolstore-app-of-apps.yaml[]
 ----
 
-Notice there is a finalizer defined, this is required if you want the Application to delete the resources it deployed when
-using the App-of-Apps pattern as per the link:https://argo-cd.readthedocs.io/en/latest/user-guide/app_deletion/#about-the-deletion-finalizer[documentation, window="_blank"].
+Notice there is a finalizer defined. This is required if you want an Application to delete the resources it deployed as per the link:https://argo-cd.readthedocs.io/en/latest/user-guide/app_deletion/#about-the-deletion-finalizer[documentation, window="_blank"].
 
 [NOTE]
 The kustomize section is used to transform the destination for the Application for your specific user. This is only needed
-here as all users are using the same repository, typically this would not be required.
+here as all users are using the same repository. Typically, this would not be required.
 
-In this section we have seen how we can use App-of-Apps to deploy multiple Applications stored in git. However this list of
-Applications is static, what if we want to create Applications dynamically based on external sources? This is where
+In this section, we have seen how we can use App-of-Apps to deploy multiple Applications stored in git. However, this list of
+Applications is static. What if we want to create Applications dynamically based on external sources? This is where
 ApplicationSets come into play.
 
 Delete the Application:
@@ -126,8 +125,8 @@ more generators that power the creation of Applications. Argo CD currently inclu
 Some common examples of these link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators[generators,window="_blank"] include:
 
 * Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-List[List,window="_blank"] generator for generating applications for different environments. We will look at an example of this shortly
-* Leveraging the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/[git,window="_blank"] generator to create Applications based on the contents of a git repo, we will look at this in Module 4 as a more dynamic way to generate apps for environments.
-* Using the https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/[Pull Request,window="_blank"] generator to provision new environments on the fly to run automated tests before merging the code.
+* Leveraging the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/[git,window="_blank"] generator to create Applications based on the contents of a git repo. We will look at this in Module 4 as a more dynamic way to generate apps for environments.
+* Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Pull-Request/[Pull Request,window="_blank"] generator to provision new environments on the fly to run automated tests before merging the code.
 * Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Cluster/[Cluster,window="_blank"] generator to provision an Application across multiple clusters.
 * Using the link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Matrix[Matrix,window="_blank"]
 and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Merge[Merge,window="_blank"] to combine the results from multiple generators.
@@ -135,8 +134,8 @@ and link:https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset
 [#appsets-static]
 === Static Generation with List Generator
 
-First let's look at a simple example of an Application that uses a List generator to create Applications for different environments
-for the `coolstore` Application. This will be a similar use case to what we saw with App-of-Apps but done
+First, let's look at a simple example of an Application that uses a List generator to create Applications for different environments
+for the `coolstore` Application. This will be a similar use case to what we saw with App-of-Apps but accomplished
 with ApplicationSets.
 
 Deploy the ApplicationSet using the following command:
@@ -147,7 +146,7 @@ Deploy the ApplicationSet using the following command:
 sed 's/$USER/{user}/' ~/workshop/content/modules/ROOT/examples/applicationsets/coolstore-list-appset.yaml | oc apply -n {user}-argocd -f -
 ----
 
-Next have a look at the ApplicationSet that was deployed with this command:
+Next, have a look at the ApplicationSet that was deployed with this command:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
@@ -192,7 +191,7 @@ spec:
           selfHeal: true
 ----
 <1> We are using the `list` generator which enables us to provide a static list of elements to dynamically
-generate applications, basically it is 1:1 per element
+generate applications. Basically it is 1:1 per element
 <2> Each element has one value, `environment`, which will be templated into the resulting Application object.
 <3> The `template` section is where we define the Application resource that the ApplicationSet will create
 <4> Here is an example of referencing the `environment` value to template the name.
@@ -201,7 +200,7 @@ Confirm the three Applications, one for each environment, were created:
 
 image::appset-apps-tiles.png[]
 
-When the ApplicationSet generates the Applications it assumes ownership of them, validate this with the following:
+When the ApplicationSet generates the Applications, it assumes ownership of them. Validate this with the following:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
@@ -226,14 +225,14 @@ oc get app coolstore-dev -o=jsonpath='{.metadata.ownerReferences}' -n {user}-arg
 ]
 ----
 
-As we can see ApplicationSets provide an easy way to generate Application objects statically but now let's have a look
-where they really shine, dynamic generation based on external sources.
+As we can see, ApplicationSets provide an easy way to generate Application objects statically. Now let's have a look
+where they really shine: dynamic generation based on external sources.
 
 [#appsets-dynamic]
 === Dynamic Generation with git Generator
 
-In this example we will deploy the front-end of the coolstore using an ApplicationSet with the git generator. The
-git generator supports two modes, file and directory. In our case we will leverage the directory mode to
+In this example, we will deploy the front-end of the coolstore using an ApplicationSet with the git generator. The
+git generator supports two modes: file and directory. In our case, we will leverage the directory mode to
 point the generator at a set of kustomize overlays in the repository.
 
 For those not familiar with kustomize, a common pattern when deploying an application with kustomize for multiple
@@ -275,8 +274,8 @@ find ~/workshop/content/modules/ROOT/examples/coolstore-web -print | sort|sed -e
 | | | | | | | | | | |--kustomization.yaml
 ----
 
-Let's deploy these applications using an ApplicationSet using the git generator. However
-the git generator is somewhat more complex then the previous static list example so let's test
+Let's deploy these applications using an ApplicationSet with the git generator. However,
+the git generator is somewhat more complex than the previous static list example. So, let's test
 it locally first to verify that it works.
 
 Output the ApplicationSet to a file replacing the workshop $USER variable with your user:
@@ -342,14 +341,14 @@ spec:
           selfHeal: true
 ----
 <1> We are using the git generator to create an Application for every directory in the target repository and path
-<2> The target path, each sub-directory in this path will be used to create an application. In our case the `dev` and `prod` overlays
+<2> The target path. Each sub-directory in this path will be used to create an application. In our case, the `dev` and `prod` overlays
 <3> The target repository
 <4> Additional values to pass to the template
-<5> The basename of the path for which the Application is being generated, either `dev` or `prod` in this case
+<5> The basename of the path for which the Application is being generated. Either `dev` or `prod` in this case
 <6> The full path in the repo for the current directory
 <7> Example of using the passed in value for `{user}`
 
-Next test the definition by generating the ApplicationSet locally using the `argocd` CLI:
+Next, test the definition by generating the ApplicationSet locally using the `argocd` CLI:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
@@ -366,9 +365,9 @@ NAME                    CLUSTER     NAMESPACE    PROJECT   STATUS  HEALTH  SYNCP
 {user}-argocd/app-stage  in-cluster  {user}-stage  workshop                  Auto-Prune  <none>      https://github.com/OpenShiftDemos/advanced-gitops-workshop  content/modules/ROOT/examples/coolstore-web/overlays/stage  main
 ----
 
-Note that three Applications are being generated, one for each environment.
+Note that three Applications are being generated. One for each environment.
 
-To see the YAML for each Application run the following:
+To see the YAML for each Application, run the following:
 
 [.console-input]
 [source,sh,subs="attributes",role=execute]
@@ -379,7 +378,7 @@ argocd appset generate ~/appset.yaml -o yaml
 [IMPORTANT]
 Using the CLI to generate Applications is very useful when debugging complex ApplicationSets since
 you do not have to spend the time deploying it to the cluster and looking at the Status block to
-understand why it isn't working.
+understand what may not be working.
 
 Now that the generation has been verified, go ahead and deploy it:
 
@@ -413,7 +412,7 @@ We can also verify that the applications have been created and are healthy in Ar
 
 image::coolstore-tiles.png[]
 
-Also in OpenShift check the Topology for `{user}-dev` and click on the Route to view the running Application:
+Also in OpenShift, check the Topology for `{user}-dev` and click on the Route to view the running Application:
 
 image::coolstore-topology.png[]
 
@@ -424,6 +423,6 @@ image::coolstore-web.png[]
 [#appsets-conclusion]
 == Conclusion
 
-In this module we learned how to deploy multiple Applications quickly and easily using the App-of-Apps pattern
+In this module, we learned how to deploy multiple Applications quickly and easily using the App-of-Apps pattern
 and ApplicationSets. We saw how ApplicationSets can be used to generate Applications dynamically based
 on external input.

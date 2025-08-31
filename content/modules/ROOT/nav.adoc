@@ -19,7 +19,7 @@
 ** xref:03-configuration.adoc#enable-terminal[Enable Terminal]
 ** xref:03-configuration.adoc#config-conclusion[Conclusion]
 
-* xref:04-applicationsets.adoc[4. ApplicatonSets]
+* xref:04-applicationsets.adoc[4. ApplicationSets]
 ** xref:04-applicationsets.adoc#app-of-apps[App-of-Apps]
 ** xref:04-applicationsets.adoc#appsets[ApplicationSets]
 *** xref:04-applicationsets.adoc#appsets-static[Static Generation]
