@@ -115,7 +115,7 @@ these statuses of most to least healthy statuses: _Healthy_, _Suspended_, _Progr
 Argo CD health checks are sourced from three locations:
 
 1. _Native_. These health checks are for standard Kubernetes resources (Deployment, Job, etc) and are written in Go. They can
-be reviewed in the link:https://github.com/argoproj/gitops-engine/tree/master/pkg/health[gitops-engine, window="_blank"] repository.
+be reviewed in the link:https://github.com/argoproj/argo-cd/tree/master/gitops-engine/pkg/health[argo-cd, window="_blank"] repository.
 2. _Included_. These health checks are written in LUA with a large number of health checks shipped with Argo CD, these can be reviewed
 in the Argo CD repository in the link:https://github.com/argoproj/argo-cd/tree/master/resource_customizations[resource_customizations, window="_blank" ]
 folder.
