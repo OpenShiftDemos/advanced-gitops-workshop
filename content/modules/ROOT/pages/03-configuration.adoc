@@ -209,8 +209,8 @@ STATUS: Progressing
 MESSAGE
 ----
 
-Note the command confirms that Argo CD considers the PVC to be `Progressing`, let's change that with the following
-custom health check writtin in LUA to override the default one:
+Note the command confirms that Argo CD considers the PVC to be `Progressing`, consider this updated
+health check for PVCs:
 
 [source,yaml,subs="+macros,attributes+"]
 ----
@@ -235,7 +235,8 @@ In this health check, in section _(1)_ we return a `Healthy` status for both the
 is `Lost` we return a `Degraded` status and finally if there is no `status` or `phase` we return an `Unknown` status. You can
 view how this compares to the native health check for PVCs link:https://github.com/argoproj/gitops-engine/blob/093aef0dad58015619479509f0d2ac71cc9cefd7/pkg/health/health_pvc.go#L28[here, window="_blank"].
 
-Insert this new health check to the local `argocd-cm` ConfigMap we are testing with the following command:
+Test this new health check that will override the default by inserting it into the local `argocd-cm`
+ConfigMap we are testing with using the following command:
 
 [.console-input]
 [source,bash,subs="attributes",role=execute]
@@ -436,4 +437,7 @@ In this module we have learned how to configure Argo CD, the importance of healt
 configuration options not available in the Operator.
 
 Clean-up your work by deleting the `health-test` Application using the default `Foreground` deletion option.
+
+image::delete-health-check.png[]
+
 
