@@ -231,7 +231,7 @@ hs.message = "Waiting for PVC status"
 return hs
 ----
 
-In this health check, in section <1> we return a `Healthy` status for both the `Pending` and `Bound` phases, if the status
+In this health check, in section _(1)_ we return a `Healthy` status for both the `Pending` and `Bound` phases, if the status
 is `Lost` we return a `Degraded` status and finally if there is no `status` or `phase` we return an `Unknown` status. You can
 view how this compares to the native health check for PVCs link:https://github.com/argoproj/gitops-engine/blob/093aef0dad58015619479509f0d2ac71cc9cefd7/pkg/health/health_pvc.go#L28[here, window="_blank"].
 
